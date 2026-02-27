@@ -12,13 +12,13 @@ export class BlockchainController {
 
   @Get("nodes/status")
   @Roles(Role.ADMIN)
-  getNodeStatus() {
+  async getNodeStatus() {
     return this.blockchainService.getNodeStatus();
   }
 
   @Get("tx/:hash")
   @Roles(Role.ADMIN)
-  trace(@Param("hash") hash: string) {
+  async trace(@Param("hash") hash: string) {
     return this.blockchainService.traceTransaction(hash);
   }
 }

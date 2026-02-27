@@ -14,6 +14,7 @@ export const router = createRouter({
   routes: [
     { path: "/login", component: () => import("../views/LoginView.vue") },
     { path: "/register", component: () => import("../views/RegisterView.vue") },
+    { path: "/verify", component: () => import("../views/VerifyView.vue") },
 
     {
       path: "/",

@@ -42,14 +42,17 @@ export class ReviewsService {
     });
     if (!task) throw new NotFoundException("Review task not found");
 
-    const onchain = this.blockchainService.submitReview({
+    const commentCipher = createHash("sha256").update(dto.comment).digest("hex");
+
+    // 上链（失败降级）
+    const onchain = await this.blockchainService.submitReview({
       paperId: task.paperId,
       reviewerAddress: task.reviewer.walletAddr ?? "0x0",
       score: dto.score,
       recommendation: dto.recommendation,
+      commentHash: commentCipher,
     });
 
-    const commentCipher = createHash("sha256").update(dto.comment).digest("hex");
     const result = await this.prisma.reviewResult.create({
       data: {
         paperId: task.paperId,
@@ -60,16 +63,33 @@ export class ReviewsService {
         txHash: onchain.txHash,
       },
     });
+
     await this.prisma.reviewTask.update({
       where: { id: task.id },
       data: { status: "SUBMITTED", assignTxHash: onchain.txHash },
     });
-    return result;
+
+    await this.prisma.chainTransaction.create({
+      data: {
+        bizType: "REVIEW_SUBMIT",
+        bizId: task.paperId,
+        txHash: onchain.txHash,
+        blockHeight: onchain.blockHeight,
+        payload: {
+          taskId: task.id,
+          score: dto.score,
+          recommendation: dto.recommendation,
+          simulated: onchain.simulated,
+        },
+      },
+    });
+
+    return { ...result, simulated: onchain.simulated };
   }
 
   async adjudicate(paperId: string) {
     const results = await this.prisma.reviewResult.findMany({ where: { paperId } });
-    if (results.length === 0) throw new NotFoundException("No reviews");
+    if (results.length === 0) throw new NotFoundException("No reviews found for this paper");
 
     const total = results.reduce((sum, item) => sum + item.score, 0);
     const avg = Math.round((total / results.length) * 100) / 100;
@@ -83,13 +103,47 @@ export class ReviewsService {
       where: { id: paperId },
       data: { status },
     });
-    return { paperId, averageScore: avg, threshold, finalStatus: status };
+
+    // 裁定结果上链
+    const onchain = await this.blockchainService.finalizeDecision({
+      paperId,
+      decision: status,
+    });
+
+    await this.prisma.chainTransaction.create({
+      data: {
+        bizType: "ADJUDICATE",
+        bizId: paperId,
+        txHash: onchain.txHash,
+        blockHeight: onchain.blockHeight,
+        payload: { averageScore: avg, finalStatus: status, simulated: onchain.simulated },
+      },
+    });
+
+    return {
+      paperId,
+      averageScore: avg,
+      threshold,
+      finalStatus: status,
+      txHash: onchain.txHash,
+      simulated: onchain.simulated,
+    };
   }
 
   myTasks(reviewerId: string) {
     return this.prisma.reviewTask.findMany({
       where: { reviewerId },
-      include: { paper: true },
+      include: {
+        paper: {
+          select: {
+            id: true,
+            title: true,
+            keywords: true,
+            status: true,
+            abstract: true,
+          },
+        },
+      },
       orderBy: { createdAt: "desc" },
     });
   }

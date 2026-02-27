@@ -16,6 +16,10 @@
           <el-icon><HomeFilled /></el-icon>
           <span>首页</span>
         </el-menu-item>
+        <el-menu-item index="/verify">
+          <el-icon><Search /></el-icon>
+          <span>版权验证</span>
+        </el-menu-item>
 
         <!-- 管理员菜单 -->
         <template v-if="authStore.isAdmin">
@@ -95,6 +99,7 @@ import {
   Document,
   EditPen,
   HomeFilled,
+  Search,
   Upload,
   User,
 } from "@element-plus/icons-vue";
@@ -140,6 +145,7 @@ const avatarColor = computed(() => {
 
 const pageTitleMap: Record<string, string> = {
   "/dashboard": "首页",
+  "/verify": "版权验证",
   "/admin/users": "用户管理",
   "/admin/reviews": "审稿分配",
   "/admin/blockchain": "链运维",

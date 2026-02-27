@@ -1,10 +1,11 @@
 import { Module } from "@nestjs/common";
 import { BlockchainController } from "./blockchain.controller";
 import { BlockchainService } from "./blockchain.service";
+import { FiscoService } from "./fisco.service";
 
 @Module({
-  providers: [BlockchainService],
+  providers: [FiscoService, BlockchainService],
   controllers: [BlockchainController],
-  exports: [BlockchainService],
+  exports: [BlockchainService, FiscoService],
 })
 export class BlockchainModule {}

@@ -1,20 +1,27 @@
 import { Injectable } from "@nestjs/common";
-import { createHash, randomBytes } from "crypto";
+import {
+  CertifyResult,
+  FiscoService,
+  NodeStatusResult,
+  TxTraceResult,
+} from "./fisco.service";
 
+/**
+ * BlockchainService 是业务层使用的门面。
+ * 内部委托 FiscoService 与 WeBASE-Front 通信；
+ * 若链不可达会自动降级（FiscoService 内处理），业务层无需关心。
+ */
 @Injectable()
 export class BlockchainService {
+  constructor(private readonly fisco: FiscoService) {}
+
   certifyCopyright(input: {
     fileHash: string;
     authorAddress: string;
     timestamp: number;
-  }) {
-    return {
-      txHash: `0x${randomBytes(32).toString("hex")}`,
-      blockHeight: Math.floor(Date.now() / 1000),
-      chainProof: createHash("sha256")
-        .update(`${input.fileHash}:${input.authorAddress}:${input.timestamp}`)
-        .digest("hex"),
-    };
+    metadataHash: string;
+  }): Promise<CertifyResult> {
+    return this.fisco.certifyCopyright(input);
   }
 
   submitReview(input: {
@@ -22,35 +29,23 @@ export class BlockchainService {
     reviewerAddress: string;
     score: number;
     recommendation: string;
-  }) {
-    return {
-      txHash: `0x${randomBytes(32).toString("hex")}`,
-      proof: createHash("sha256")
-        .update(
-          `${input.paperId}:${input.reviewerAddress}:${input.score}:${input.recommendation}`,
-        )
-        .digest("hex"),
-    };
+    commentHash: string;
+  }): Promise<CertifyResult> {
+    return this.fisco.submitReview(input);
   }
 
-  getNodeStatus() {
-    return {
-      chainId: process.env.FISCO_CHAIN_ID ?? "chain0",
-      groupId: Number(process.env.FISCO_GROUP_ID ?? "1"),
-      rpc: process.env.FISCO_RPC_URL ?? "http://localhost:20200",
-      pbft: "healthy",
-      tps: 95,
-      blockHeight: Math.floor(Date.now() / 1000),
-    };
+  finalizeDecision(input: {
+    paperId: string;
+    decision: string;
+  }): Promise<CertifyResult> {
+    return this.fisco.finalizeDecision(input);
   }
 
-  traceTransaction(txHash: string) {
-    return {
-      txHash,
-      status: "SUCCESS",
-      blockHeight: Math.floor(Date.now() / 1000),
-      timestamp: Date.now(),
-      bizType: "MIXED",
-    };
+  getNodeStatus(): Promise<NodeStatusResult> {
+    return this.fisco.getNodeStatus();
+  }
+
+  traceTransaction(txHash: string): Promise<TxTraceResult> {
+    return this.fisco.traceTransaction(txHash);
   }
 }
