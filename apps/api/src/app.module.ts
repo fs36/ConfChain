@@ -3,6 +3,7 @@ import { ConfigModule } from "@nestjs/config";
 import { resolve } from "path";
 import { AuthModule } from "./auth/auth.module";
 import { BlockchainModule } from "./blockchain/blockchain.module";
+import { ConfConfigModule } from "./conf-config/conf-config.module";
 import { PrismaModule } from "./common/prisma.module";
 import { HealthController } from "./health.controller";
 import { PapersModule } from "./papers/papers.module";
@@ -25,6 +26,7 @@ import { UsersModule } from "./users/users.module";
     PapersModule,
     ReviewsModule,
     BlockchainModule,
+    ConfConfigModule,
   ],
   controllers: [HealthController],
 })

@@ -2,6 +2,7 @@ import { ForbiddenException, Injectable, NotFoundException } from "@nestjs/commo
 import { PaperStatus, Role } from "@prisma/client";
 import { createHash } from "crypto";
 import { BlockchainService } from "../blockchain/blockchain.service";
+import { ConfConfigService } from "../conf-config/conf-config.service";
 import { PrismaService } from "../common/prisma.service";
 import { AssignReviewDto } from "./dto/assign-review.dto";
 import { SubmitReviewDto } from "./dto/submit-review.dto";
@@ -11,6 +12,7 @@ export class ReviewsService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly blockchainService: BlockchainService,
+    private readonly confConfigService: ConfConfigService,
   ) {}
 
   async assign(dto: AssignReviewDto) {
@@ -93,7 +95,7 @@ export class ReviewsService {
 
     const total = results.reduce((sum, item) => sum + item.score, 0);
     const avg = Math.round((total / results.length) * 100) / 100;
-    const threshold = 70;
+    const threshold = await this.confConfigService.getThreshold();
 
     let status: PaperStatus = PaperStatus.REJECTED;
     if (avg >= threshold + 10) status = PaperStatus.ACCEPTED;

@@ -31,9 +31,23 @@
             <el-icon><Document /></el-icon>
             <span>审稿分配</span>
           </el-menu-item>
-          <el-menu-item index="/admin/blockchain">
-            <el-icon><Connection /></el-icon>
-            <span>链运维</span>
+          <el-sub-menu index="chain-manage">
+            <template #title>
+              <el-icon><Connection /></el-icon>
+              <span>区块链管理</span>
+            </template>
+            <el-menu-item index="/admin/blockchain">
+              <el-icon><Connection /></el-icon>
+              <span>链运维</span>
+            </el-menu-item>
+            <el-menu-item index="/admin/contracts">
+              <el-icon><Files /></el-icon>
+              <span>合约管理</span>
+            </el-menu-item>
+          </el-sub-menu>
+          <el-menu-item index="/admin/config">
+            <el-icon><Setting /></el-icon>
+            <span>系统配置</span>
           </el-menu-item>
         </template>
 
@@ -98,8 +112,10 @@ import {
   Connection,
   Document,
   EditPen,
+  Files,
   HomeFilled,
   Search,
+  Setting,
   Upload,
   User,
 } from "@element-plus/icons-vue";
@@ -149,6 +165,8 @@ const pageTitleMap: Record<string, string> = {
   "/admin/users": "用户管理",
   "/admin/reviews": "审稿分配",
   "/admin/blockchain": "链运维",
+  "/admin/contracts": "合约管理",
+  "/admin/config": "系统配置",
   "/author/papers": "我的稿件",
   "/author/submit": "投稿",
   "/reviewer/tasks": "审稿任务",

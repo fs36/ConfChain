@@ -43,6 +43,16 @@ export const router = createRouter({
           component: () => import("../views/admin/BlockchainView.vue"),
           meta: { requiresAuth: true, roles: ["ADMIN"] },
         },
+        {
+          path: "admin/contracts",
+          component: () => import("../views/admin/ContractView.vue"),
+          meta: { requiresAuth: true, roles: ["ADMIN"] },
+        },
+        {
+          path: "admin/config",
+          component: () => import("../views/admin/SystemConfigView.vue"),
+          meta: { requiresAuth: true, roles: ["ADMIN"] },
+        },
 
         // 作者路由
         {
