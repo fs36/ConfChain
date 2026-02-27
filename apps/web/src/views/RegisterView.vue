@@ -1,8 +1,8 @@
 <template>
   <div class="auth-page">
-    <el-card class="auth-card">
+    <el-card class="auth-card" shadow="never">
       <div class="auth-header">
-        <span class="auth-logo">⛓</span>
+        <span class="auth-logo" aria-hidden="true">⛓</span>
         <h2>注册 ConfChain</h2>
         <p class="subtitle">基于区块链的学术会议平台</p>
       </div>
@@ -118,42 +118,59 @@ async function onRegister() {
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1a1f2e 0%, #2d3561 100%);
+  background: linear-gradient(160deg, var(--color-bg-sidebar) 0%, #1a2332 50%, #0f1823 100%);
+  padding: 24px;
 }
 
 .auth-card {
-  width: 440px;
+  width: 100%;
+  max-width: 440px;
   border-radius: 12px;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-modal);
+  animation: auth-card-in 0.5s var(--ease-out) both;
+}
+
+@keyframes auth-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .auth-header {
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 28px;
 }
 
 .auth-logo {
-  font-size: 36px;
+  font-size: 2.25rem;
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 12px;
+  opacity: 0.9;
 }
 
 .auth-header h2 {
-  margin: 0 0 4px;
-  font-size: 22px;
-  color: #303133;
+  margin: 0 0 6px;
+  font-size: 1.5rem;
+  font-family: var(--font-heading);
+  color: var(--color-text);
 }
 
 .subtitle {
   margin: 0;
-  font-size: 13px;
-  color: #909399;
+  font-size: 0.8125rem;
+  color: var(--color-text-tertiary);
 }
 
 .auth-footer {
-  margin-top: 20px;
+  margin-top: 24px;
   text-align: center;
-  font-size: 14px;
-  color: #606266;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
 }
 </style>

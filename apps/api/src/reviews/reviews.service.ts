@@ -17,7 +17,7 @@ export class ReviewsService {
 
   async assign(dto: AssignReviewDto) {
     const paper = await this.prisma.paper.findUnique({ where: { id: dto.paperId } });
-    if (!paper) throw new NotFoundException("Paper not found");
+    if (!paper) throw new NotFoundException("稿件不存在");
 
     const tasks = await this.prisma.$transaction(
       dto.reviewerIds.map((reviewerId) =>
@@ -42,7 +42,7 @@ export class ReviewsService {
       where: { id: dto.taskId, reviewerId },
       include: { reviewer: true },
     });
-    if (!task) throw new NotFoundException("Review task not found");
+    if (!task) throw new NotFoundException("审稿任务不存在或无权操作");
 
     const commentCipher = createHash("sha256").update(dto.comment).digest("hex");
 
@@ -61,6 +61,7 @@ export class ReviewsService {
         reviewerId,
         score: dto.score,
         recommendation: dto.recommendation,
+        comment: dto.comment,
         commentCipher,
         txHash: onchain.txHash,
       },
@@ -91,7 +92,7 @@ export class ReviewsService {
 
   async adjudicate(paperId: string) {
     const results = await this.prisma.reviewResult.findMany({ where: { paperId } });
-    if (results.length === 0) throw new NotFoundException("No reviews found for this paper");
+    if (results.length === 0) throw new NotFoundException("该稿件暂无审稿意见，无法执行裁定");
 
     const total = results.reduce((sum, item) => sum + item.score, 0);
     const avg = Math.round((total / results.length) * 100) / 100;
@@ -118,7 +119,12 @@ export class ReviewsService {
         bizId: paperId,
         txHash: onchain.txHash,
         blockHeight: onchain.blockHeight,
-        payload: { averageScore: avg, finalStatus: status, simulated: onchain.simulated },
+        payload: {
+          averageScore: avg,
+          finalStatus: status,
+          threshold,
+          simulated: onchain.simulated,
+        },
       },
     });
 
@@ -158,7 +164,7 @@ export class ReviewsService {
       where: { id: paperId },
       include: { author: { select: { id: true, name: true, email: true } } },
     });
-    if (!paper) throw new NotFoundException("Paper not found");
+    if (!paper) throw new NotFoundException("稿件不存在");
     const results = await this.getResults(paperId);
     return { paper, results };
   }
@@ -213,7 +219,7 @@ export class ReviewsService {
    */
   async autoAssign(dto: { paperId: string; count: number; deadlineAt: string }) {
     const paper = await this.prisma.paper.findUnique({ where: { id: dto.paperId } });
-    if (!paper) throw new NotFoundException("Paper not found");
+    if (!paper) throw new NotFoundException("稿件不存在");
 
     const existing = await this.prisma.reviewTask.findMany({
       where: { paperId: dto.paperId },
@@ -228,7 +234,7 @@ export class ReviewsService {
       take: dto.count,
     });
 
-    if (reviewers.length === 0) throw new NotFoundException("No available reviewers");
+    if (reviewers.length === 0) throw new NotFoundException("暂无可分配的审稿人，请先添加审稿人账号");
 
     return this.assign({
       paperId: dto.paperId,

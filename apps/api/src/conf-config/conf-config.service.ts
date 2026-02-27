@@ -2,14 +2,8 @@ import { Injectable } from "@nestjs/common";
 import { PrismaService } from "../common/prisma.service";
 
 export interface ConferenceConfigDto {
-  conferenceName: string;
-  submitStartAt: string;
-  submitEndAt: string;
-  reviewDays: number;
+  /** 全局裁定阈值 */
   acceptThreshold: number;
-  weightInnovation: number;
-  weightScience: number;
-  weightWriting: number;
 }
 
 @Injectable()
@@ -46,27 +40,20 @@ export class ConfConfigService {
       return this.prisma.conferenceConfig.update({
         where: { id: existing.id },
         data: {
-          conferenceName: dto.conferenceName,
-          submitStartAt: new Date(dto.submitStartAt),
-          submitEndAt: new Date(dto.submitEndAt),
-          reviewDays: dto.reviewDays,
           acceptThreshold: dto.acceptThreshold,
-          weightInnovation: dto.weightInnovation,
-          weightScience: dto.weightScience,
-          weightWriting: dto.weightWriting,
         },
       });
     }
     return this.prisma.conferenceConfig.create({
       data: {
-        conferenceName: dto.conferenceName,
-        submitStartAt: new Date(dto.submitStartAt),
-        submitEndAt: new Date(dto.submitEndAt),
-        reviewDays: dto.reviewDays,
+        conferenceName: "ConfChain 学术会议",
+        submitStartAt: new Date(),
+        submitEndAt: new Date(),
+        reviewDays: 14,
         acceptThreshold: dto.acceptThreshold,
-        weightInnovation: dto.weightInnovation,
-        weightScience: dto.weightScience,
-        weightWriting: dto.weightWriting,
+        weightInnovation: 40,
+        weightScience: 40,
+        weightWriting: 20,
       },
     });
   }

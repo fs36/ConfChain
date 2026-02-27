@@ -114,8 +114,8 @@
               <span class="mono small">{{ row.txHash?.slice(0, 18) }}…</span>
             </template>
           </el-table-column>
-          <el-table-column prop="blockHeight" label="块高" width="80" />
-          <el-table-column label="时间" width="120">
+          <el-table-column prop="blockHeight" label="块高" width="110" />
+          <el-table-column label="时间" width="150">
             <template #default="{ row }">
               {{ new Date(row.createdAt).toLocaleDateString("zh-CN") }}
             </template>
@@ -164,8 +164,8 @@
             </el-tooltip>
           </template>
         </el-table-column>
-        <el-table-column prop="blockHeight" label="块高" width="90" />
-        <el-table-column label="时间" width="130">
+        <el-table-column prop="blockHeight" label="块高" width="110" />
+        <el-table-column label="时间" width="160">
           <template #default="{ row }">
             {{ new Date(row.createdAt).toLocaleDateString("zh-CN") }}
           </template>

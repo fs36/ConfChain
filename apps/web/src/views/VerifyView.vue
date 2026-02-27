@@ -36,8 +36,8 @@
               :on-change="onFileChange"
               drag
             >
-              <el-icon style="font-size: 36px; color: #409eff"><Upload /></el-icon>
-              <div style="margin-top: 8px; font-size: 14px; color: #606266">
+              <el-icon class="upload-icon"><Upload /></el-icon>
+              <div class="upload-hint">
                 上传原始论文文件，系统自动计算哈希并与链上记录比对
               </div>
               <template #tip>
@@ -116,16 +116,25 @@
 import { Upload } from "@element-plus/icons-vue";
 import { ElMessage } from "element-plus";
 import type { UploadFile } from "element-plus";
-import { ref } from "vue";
-import { useRouter } from "vue-router";
+import { onMounted, ref } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { api } from "../services/api";
 
 const router = useRouter();
+const route = useRoute();
 const activeTab = ref("hash");
 const hashInput = ref("");
 const selectedFile = ref<File | null>(null);
 const loading = ref(false);
 const result = ref<any>(null);
+
+onMounted(async () => {
+  const hash = route.query.fileHash as string | undefined;
+  if (hash) {
+    hashInput.value = hash;
+    await verifyByHash();
+  }
+});
 
 function onFileChange(file: UploadFile) {
   if (file.raw) selectedFile.value = file.raw;
@@ -193,7 +202,7 @@ function statusTagType(s: string) {
 <style scoped>
 .verify-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #1a1f2e 0%, #2d3561 100%);
+  background: linear-gradient(160deg, var(--color-bg-sidebar) 0%, #1a2332 50%, #0f1823 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -202,32 +211,36 @@ function statusTagType(s: string) {
 
 .verify-header {
   text-align: center;
-  color: #fff;
+  color: var(--color-text-inverse);
   margin-bottom: 32px;
 }
 
 .verify-logo {
-  font-size: 48px;
+  font-size: 3rem;
   display: block;
   margin-bottom: 12px;
+  opacity: 0.9;
 }
 
 .verify-header h1 {
   margin: 0 0 8px;
-  font-size: 28px;
-  font-weight: 700;
+  font-size: 1.75rem;
+  font-weight: 600;
+  font-family: var(--font-heading);
 }
 
 .verify-sub {
   margin: 0;
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.65);
 }
 
 .verify-card {
   width: 100%;
   max-width: 680px;
   border-radius: 12px;
+  border: 1px solid var(--color-border-light);
+  box-shadow: var(--shadow-modal);
 }
 
 .result-card {
@@ -235,27 +248,39 @@ function statusTagType(s: string) {
   max-width: 680px;
   margin-top: 20px;
   border-radius: 12px;
+  border: 1px solid var(--color-border-light);
 }
 
 .tip {
-  font-size: 12px;
-  color: #909399;
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
   margin-top: 4px;
 }
 
 .mono {
-  font-family: monospace;
-  font-size: 12px;
+  font-family: var(--font-mono), monospace;
+  font-size: 0.75rem;
   word-break: break-all;
 }
 
+.upload-icon {
+  font-size: 36px;
+  color: var(--el-color-primary);
+}
+
+.upload-hint {
+  margin-top: 8px;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
 .tx-hash {
-  color: #67c23a;
+  color: var(--color-primary);
 }
 
 .back-link {
   margin-top: 24px;
-  color: rgba(255, 255, 255, 0.7);
-  font-size: 14px;
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.875rem;
 }
 </style>

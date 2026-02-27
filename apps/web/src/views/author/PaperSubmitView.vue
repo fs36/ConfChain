@@ -39,10 +39,10 @@
             :on-remove="onFileRemove"
             drag
           >
-            <el-icon style="font-size: 36px; color: #409eff"><Upload /></el-icon>
-            <div style="margin-top: 8px; font-size: 14px; color: #606266">
+            <el-icon class="upload-area-icon"><Upload /></el-icon>
+            <div class="upload-area-hint">
               拖拽文件到此处，或
-              <span style="color: #409eff; cursor: pointer">点击上传</span>
+              <span class="upload-area-link">点击上传</span>
             </div>
             <template #tip>
               <div class="upload-tip">支持 .pdf / .doc / .docx，单文件不超过 20MB</div>
@@ -183,9 +183,25 @@ async function onSubmit() {
   max-width: 800px;
 }
 
+.upload-area-icon {
+  font-size: 36px;
+  color: var(--el-color-primary);
+}
+
+.upload-area-hint {
+  margin-top: 8px;
+  font-size: 0.875rem;
+  color: var(--color-text-secondary);
+}
+
+.upload-area-link {
+  color: var(--el-color-primary);
+  cursor: pointer;
+}
+
 .upload-tip {
-  font-size: 12px;
-  color: #909399;
+  font-size: 0.75rem;
+  color: var(--color-text-tertiary);
   margin-top: 4px;
 }
 

@@ -12,7 +12,7 @@
       </template>
 
       <el-table :data="pendingPapers" v-loading="loadingPapers" stripe>
-        <el-table-column label="论文标题" min-width="200">
+        <el-table-column label="论文标题" min-width="160">
           <template #default="{ row }">
             <el-button type="primary" link size="small" @click="openPaperDetail(row)">
               {{ row.title }}
@@ -29,7 +29,7 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="操作" width="280" fixed="right">
+        <el-table-column label="操作" width="340" fixed="right">
           <template #default="{ row }">
             <el-button
               type="primary"

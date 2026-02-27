@@ -8,9 +8,10 @@
       <el-menu
         :default-active="activeRoute"
         router
-        background-color="#1a1f2e"
-        text-color="#c0c4cc"
-        active-text-color="#409eff"
+        :background-color="undefined"
+        :text-color="undefined"
+        :active-text-color="undefined"
+        class="app-menu"
       >
         <el-menu-item index="/dashboard">
           <el-icon><HomeFilled /></el-icon>
@@ -154,7 +155,7 @@ const avatarLetter = computed(() => {
 });
 
 const avatarColor = computed(() => {
-  const colors = ["#409eff", "#67c23a", "#e6a23c", "#f56c6c", "#909399"];
+  const colors = ["var(--color-primary)", "#3b82f6", "#60a5fa", "#6366f1", "#64748b"];
   const letter = avatarLetter.value.charCodeAt(0) % colors.length;
   return colors[letter];
 });
@@ -193,51 +194,66 @@ async function handleCommand(cmd: string) {
 }
 
 .sidebar {
-  background-color: #1a1f2e;
+  background: var(--color-bg-sidebar);
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  transition: width var(--transition-normal);
 }
 
 .logo {
-  height: 60px;
+  height: 64px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  border-bottom: 1px solid #2d3348;
+  gap: 10px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  flex-shrink: 0;
 }
 
 .logo-icon {
-  font-size: 22px;
+  font-size: 24px;
+  opacity: 0.9;
 }
 
 .logo-text {
-  color: #fff;
-  font-size: 18px;
-  font-weight: 700;
-  letter-spacing: 1px;
+  color: var(--color-text-inverse);
+  font-size: 1.125rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  font-family: var(--font-heading);
 }
 
-.el-menu {
+.app-menu {
   border-right: none;
   flex: 1;
+  --el-menu-bg-color: transparent;
+  --el-menu-text-color: rgba(255, 255, 255, 0.75);
+  --el-menu-hover-bg-color: var(--color-bg-sidebar-hover);
+  --el-menu-active-color: var(--color-primary-light);
+}
+
+.app-menu .el-menu-item.is-active {
+  color: var(--color-primary-light);
+  font-weight: 500;
 }
 
 .app-header {
-  height: 60px;
-  background: #fff;
-  border-bottom: 1px solid #e4e7ed;
+  height: 64px;
+  background: var(--color-bg-header);
+  border-bottom: 1px solid var(--color-border-light);
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
+  transition: box-shadow var(--transition-fast);
 }
 
 .page-title {
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 600;
-  color: #303133;
+  color: var(--color-text);
+  font-family: var(--font-heading);
 }
 
 .header-right {
@@ -261,13 +277,13 @@ async function handleCommand(cmd: string) {
 }
 
 .user-info:hover {
-  background: #f5f7fa;
+  background: var(--color-bg-page);
 }
 
 .username {
-  font-size: 14px;
-  color: #303133;
-  max-width: 120px;
+  font-size: 0.875rem;
+  color: var(--color-text);
+  max-width: 140px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -275,11 +291,12 @@ async function handleCommand(cmd: string) {
 
 .arrow {
   font-size: 12px;
-  color: #909399;
+  color: var(--color-text-tertiary);
+  transition: transform var(--transition-fast);
 }
 
 .app-main {
-  background: #f5f7fa;
+  background: var(--color-bg-page);
   padding: 24px;
   overflow-y: auto;
 }

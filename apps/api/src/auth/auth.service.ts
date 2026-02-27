@@ -20,7 +20,7 @@ export class AuthService {
 
   async register(dto: RegisterDto) {
     const exists = await this.prisma.user.findUnique({ where: { email: dto.email } });
-    if (exists) throw new ConflictException("Email already exists");
+    if (exists) throw new ConflictException("该邮箱已被注册，请直接登录或使用其他邮箱");
 
     const passwordHash = await bcrypt.hash(dto.password, 10);
     const walletAddr = `0x${randomBytes(20).toString("hex")}`;
@@ -50,10 +50,10 @@ export class AuthService {
 
   async login(dto: LoginDto) {
     const user = await this.prisma.user.findUnique({ where: { email: dto.email } });
-    if (!user) throw new UnauthorizedException("Invalid credentials");
+    if (!user) throw new UnauthorizedException("账号或密码不正确");
 
     const ok = await bcrypt.compare(dto.password, user.passwordHash);
-    if (!ok) throw new UnauthorizedException("Invalid credentials");
+    if (!ok) throw new UnauthorizedException("账号或密码不正确");
 
     const payload: Record<string, string> = {
       sub: user.id,

@@ -1,8 +1,8 @@
 <template>
-  <div class="dashboard">
-    <el-row :gutter="20">
+  <div class="dashboard page-content">
+    <el-row :gutter="24">
       <el-col :span="24">
-        <el-card class="welcome-card">
+        <el-card class="welcome-card" shadow="never">
           <div class="welcome-content">
             <div class="welcome-left">
               <h2>欢迎回来，{{ profile?.name || profile?.email }}</h2>
@@ -21,9 +21,9 @@
     </el-row>
 
     <!-- 管理员快捷操作 -->
-    <el-row :gutter="20" v-if="authStore.isAdmin" class="quick-actions">
+    <el-row :gutter="24" v-if="authStore.isAdmin" class="quick-actions">
       <el-col :xs="24" :sm="8">
-        <el-card class="stat-card" @click="router.push('/admin/users')">
+        <el-card class="stat-card" shadow="hover" @click="router.push('/admin/users')">
           <el-icon class="stat-icon"><User /></el-icon>
           <div class="stat-info">
             <div class="stat-label">用户管理</div>
@@ -32,7 +32,7 @@
         </el-card>
       </el-col>
       <el-col :xs="24" :sm="8">
-        <el-card class="stat-card" @click="router.push('/admin/reviews')">
+        <el-card class="stat-card" shadow="hover" @click="router.push('/admin/reviews')">
           <el-icon class="stat-icon"><Document /></el-icon>
           <div class="stat-info">
             <div class="stat-label">审稿分配</div>
@@ -41,7 +41,7 @@
         </el-card>
       </el-col>
       <el-col :xs="24" :sm="8">
-        <el-card class="stat-card" @click="router.push('/admin/blockchain')">
+        <el-card class="stat-card" shadow="hover" @click="router.push('/admin/blockchain')">
           <el-icon class="stat-icon"><Connection /></el-icon>
           <div class="stat-info">
             <div class="stat-label">链运维</div>
@@ -52,9 +52,9 @@
     </el-row>
 
     <!-- 作者快捷操作 -->
-    <el-row :gutter="20" v-if="authStore.isAuthor" class="quick-actions">
+    <el-row :gutter="24" v-if="authStore.isAuthor" class="quick-actions">
       <el-col :xs="24" :sm="12">
-        <el-card class="stat-card" @click="router.push('/author/submit')">
+        <el-card class="stat-card" shadow="hover" @click="router.push('/author/submit')">
           <el-icon class="stat-icon"><Upload /></el-icon>
           <div class="stat-info">
             <div class="stat-label">投稿</div>
@@ -63,7 +63,7 @@
         </el-card>
       </el-col>
       <el-col :xs="24" :sm="12">
-        <el-card class="stat-card" @click="router.push('/author/papers')">
+        <el-card class="stat-card" shadow="hover" @click="router.push('/author/papers')">
           <el-icon class="stat-icon"><Document /></el-icon>
           <div class="stat-info">
             <div class="stat-label">我的稿件</div>
@@ -74,9 +74,9 @@
     </el-row>
 
     <!-- 审稿人快捷操作 -->
-    <el-row :gutter="20" v-if="authStore.isReviewer" class="quick-actions">
+    <el-row :gutter="24" v-if="authStore.isReviewer" class="quick-actions">
       <el-col :xs="24" :sm="12">
-        <el-card class="stat-card" @click="router.push('/reviewer/tasks')">
+        <el-card class="stat-card" shadow="hover" @click="router.push('/reviewer/tasks')">
           <el-icon class="stat-icon"><EditPen /></el-icon>
           <div class="stat-info">
             <div class="stat-label">审稿任务</div>
@@ -120,8 +120,8 @@ const roleTagType = computed(() => {
 
 .welcome-card {
   margin-bottom: 24px;
-  background: linear-gradient(135deg, #409eff15, #67c23a10);
-  border: 1px solid #409eff30;
+  background: var(--color-primary-bg);
+  border: 1px solid rgba(37, 99, 235, 0.2);
 }
 
 .welcome-content {
@@ -132,32 +132,33 @@ const roleTagType = computed(() => {
 
 .welcome-left h2 {
   margin: 0 0 8px;
-  font-size: 22px;
-  color: #303133;
+  font-size: 1.375rem;
+  font-family: var(--font-heading);
+  color: var(--color-text);
 }
 
 .welcome-sub {
   margin: 0 0 6px;
-  color: #606266;
-  font-size: 14px;
+  color: var(--color-text-secondary);
+  font-size: 0.875rem;
 }
 
 .welcome-addr {
   margin: 0;
-  color: #909399;
-  font-size: 12px;
+  color: var(--color-text-tertiary);
+  font-size: 0.75rem;
 }
 
 .welcome-addr code {
-  font-family: monospace;
-  background: #f5f7fa;
-  padding: 2px 6px;
+  font-family: var(--font-mono), monospace;
+  background: var(--color-border-light);
+  padding: 2px 8px;
   border-radius: 4px;
 }
 
 .welcome-icon {
-  font-size: 52px;
-  opacity: 0.3;
+  font-size: 3.25rem;
+  opacity: 0.25;
 }
 
 .quick-actions {
@@ -165,43 +166,43 @@ const roleTagType = computed(() => {
 }
 
 .quick-actions .el-col {
-  margin-bottom: 16px;
+  margin-bottom: 20px;
 }
 
 .stat-card {
   cursor: pointer;
-  transition: all 0.2s;
+  transition: transform var(--transition-normal), box-shadow var(--transition-normal);
   display: flex;
   align-items: center;
 }
 
 .stat-card:hover {
-  box-shadow: 0 4px 20px rgba(64, 158, 255, 0.2);
   transform: translateY(-2px);
 }
 
 :deep(.stat-card .el-card__body) {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 20px;
+  gap: 18px;
+  padding: 22px;
 }
 
 .stat-icon {
-  font-size: 32px;
-  color: #409eff;
+  font-size: 2rem;
+  color: var(--el-color-primary);
   flex-shrink: 0;
 }
 
 .stat-label {
-  font-size: 16px;
+  font-size: 1rem;
   font-weight: 600;
-  color: #303133;
+  font-family: var(--font-heading);
+  color: var(--color-text);
   margin-bottom: 4px;
 }
 
 .stat-desc {
-  font-size: 13px;
-  color: #909399;
+  font-size: 0.8125rem;
+  color: var(--color-text-tertiary);
 }
 </style>

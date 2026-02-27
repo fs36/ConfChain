@@ -44,7 +44,7 @@ export class PapersService {
     } else if (dto.fileContent) {
       fileContent = dto.fileContent;
     } else {
-      throw new NotFoundException("No file content provided");
+      throw new NotFoundException("未提供文件内容，请选择文件后重试");
     }
 
     const fileHash = createHash("sha256").update(fileContent).digest("hex");
@@ -130,7 +130,7 @@ export class PapersService {
       where: { id: paperId, authorId },
       include: { author: true },
     });
-    if (!paper) throw new NotFoundException("Paper not found");
+    if (!paper) throw new NotFoundException("稿件不存在");
 
     const fileHash = createHash("sha256").update(fileContent).digest("hex");
     const metadataHash = FiscoService.buildMetadataHash(
@@ -192,7 +192,7 @@ export class PapersService {
       include: { author: true },
     });
     if (!paper || !paper.txHash) {
-      return { found: false, message: "No on-chain record found" };
+      return { found: false, message: "未找到链上存证记录，该文件可能尚未完成存证" };
     }
     return {
       found: true,
@@ -221,8 +221,8 @@ export class PapersService {
       where: { id: paperId },
       select: { id: true, authorId: true, status: true, title: true },
     });
-    if (!paper) throw new NotFoundException("Paper not found");
-    if (!isAdmin && paper.authorId !== requesterId) throw new NotFoundException("Paper not found");
+    if (!paper) throw new NotFoundException("稿件不存在");
+    if (!isAdmin && paper.authorId !== requesterId) throw new NotFoundException("稿件不存在");
 
     const tx = await this.prisma.chainTransaction.findFirst({
       where: { bizId: paperId, bizType: "ADJUDICATE" },
@@ -231,7 +231,7 @@ export class PapersService {
 
     const reviewResults = await this.prisma.reviewResult.findMany({
       where: { paperId },
-      select: { score: true, recommendation: true, createdAt: true },
+      select: { score: true, recommendation: true, comment: true, createdAt: true },
       orderBy: { createdAt: "asc" },
     });
     const averageScore =
@@ -252,6 +252,7 @@ export class PapersService {
       reviewResults: reviewResults.map((r) => ({
         score: r.score,
         recommendation: r.recommendation,
+        comment: r.comment,
         submittedAt: r.createdAt,
       })),
       averageScore,
@@ -280,7 +281,7 @@ export class PapersService {
       ];
       const found = candidates.find((p) => existsSync(p));
       if (found) absPath = found;
-      else throw new NotFoundException("File not found on disk");
+      else throw new NotFoundException("文件在服务器磁盘上不存在，请联系管理员");
     }
     return { absPath, fileName: basename(paper.filePath) || "paper" };
   }
@@ -309,7 +310,7 @@ export class PapersService {
       where: { id: paperId },
       include: { author: true },
     });
-    if (!paper) throw new NotFoundException("Paper not found");
+    if (!paper) throw new NotFoundException("稿件不存在");
     if (paper.authorId !== authorId) throw new ForbiddenException("仅作者可提交修订稿");
     if (paper.status !== PaperStatus.REVISION) {
       throw new ForbiddenException("仅「需修改」状态的稿件可提交修订稿");

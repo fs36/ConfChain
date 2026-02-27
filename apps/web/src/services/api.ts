@@ -18,7 +18,16 @@ api.interceptors.response.use(
   (res) => res,
   (err) => {
     const status = err.response?.status;
+    const isVerifyPage =
+      typeof window !== "undefined" && window.location.pathname === "/verify";
+    const isVerifyApi =
+      err.config?.url?.includes("/papers/verify") === true;
+
     if (status === 401) {
+      if (isVerifyPage || isVerifyApi) {
+        // 验证页及验证接口不要求登录，401 仅作为业务结果由页面处理，不跳转
+        return Promise.reject(err);
+      }
       localStorage.removeItem("cc_token");
       localStorage.removeItem("cc_user");
       location.href = "/login";

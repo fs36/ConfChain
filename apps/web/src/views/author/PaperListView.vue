@@ -1,5 +1,5 @@
 <template>
-  <div class="paper-list">
+  <div class="paper-list page-content">
     <el-card>
       <template #header>
         <div class="card-header">
@@ -59,10 +59,19 @@
         <el-table-column label="投稿时间" width="120">
           <template #default="{ row }">{{ formatDate(row.createdAt) }}</template>
         </el-table-column>
-        <el-table-column label="操作" width="130" fixed="right">
+        <el-table-column label="操作" width="240" fixed="right">
           <template #default="{ row }">
             <el-button type="primary" link size="small" @click="showDetail(row)">
               存证详情
+            </el-button>
+            <el-button
+              v-if="row.txHash"
+              type="warning"
+              link
+              size="small"
+              @click="openCertificate(row)"
+            >
+              导出证书
             </el-button>
             <el-button
               v-if="FINAL_STATUSES.includes(row.status)"
@@ -81,6 +90,11 @@
     <!-- 存证详情抽屉 -->
     <el-drawer v-model="drawerVisible" title="稿件存证详情" size="420px">
       <template v-if="selectedPaper">
+        <div v-if="selectedPaper.txHash" style="margin-bottom: 16px">
+          <el-button type="warning" @click="openCertificate(selectedPaper)">
+            导出区块链存证证书
+          </el-button>
+        </div>
         <el-descriptions :column="1" border>
           <el-descriptions-item label="论文标题">{{ selectedPaper.title }}</el-descriptions-item>
           <el-descriptions-item label="摘要">
@@ -127,7 +141,12 @@
           <div class="section-title">审稿意见与分数</div>
           <div class="adj-score-line">
             综合平均分：<span class="adj-score">{{ adjDetail.averageScore ?? "-" }}</span>
-            <span class="threshold-hint">（裁定阈值 70 分）</span>
+            <span class="threshold-hint">
+              裁定阈值 {{ thresholdValue }} 分
+              （≥ {{ thresholdValue + 10 }} 录用 /
+              ≥ {{ thresholdValue }} 需修改 /
+              &lt; {{ thresholdValue }} 拒绝）
+            </span>
           </div>
           <el-table :data="adjDetail.reviewResults" stripe size="small" class="review-table">
             <el-table-column type="index" label="序号" width="56" />
@@ -144,6 +163,13 @@
             <el-table-column label="录用建议" min-width="120">
               <template #default="{ row }">
                 {{ RECOMMENDATION_LABEL[row.recommendation] ?? row.recommendation }}
+              </template>
+            </el-table-column>
+            <el-table-column label="评语" min-width="200">
+              <template #default="{ row }">
+                <span class="comment-text">
+                  {{ row.comment || "（审稿人未填写评语）" }}
+                </span>
               </template>
             </el-table-column>
             <el-table-column label="提交时间" width="100">
@@ -164,7 +190,9 @@
           </el-descriptions-item>
           <template v-if="adjDetail.adjudication">
             <el-descriptions-item label="裁定阈值">
-              70分（≥80 录用 / ≥70 需修改 / &lt;70 拒绝）
+              {{
+                `${thresholdValue}分（≥${thresholdValue + 10} 录用 / ≥${thresholdValue} 需修改 / < ${thresholdValue} 拒绝）`
+              }}
             </el-descriptions-item>
           </template>
           <el-descriptions-item label="裁定时间">
@@ -244,13 +272,20 @@
         </el-button>
       </template>
     </el-dialog>
+    <!-- 区块链存证证书对话框 -->
+    <CertificateDialog
+      v-if="certPaper"
+      v-model="certDialogVisible"
+      :paper="certPaper"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ElMessage } from "element-plus";
-import { onMounted, ref } from "vue";
+import { computed, onMounted, ref } from "vue";
 import { useRouter } from "vue-router";
+import CertificateDialog from "../../components/CertificateDialog.vue";
 import { api } from "../../services/api";
 
 interface Paper {
@@ -277,6 +312,7 @@ const RECOMMENDATION_LABEL: Record<string, string> = {
 interface ReviewResultItem {
   score: number;
   recommendation: string;
+  comment?: string | null;
   submittedAt: string;
 }
 
@@ -307,7 +343,16 @@ const reviseFile = ref<File | null>(null);
 const reviseUploading = ref(false);
 const reviseUploadRef = ref();
 
+const certDialogVisible = ref(false);
+const certPaper = ref<Paper | null>(null);
+
 const FINAL_STATUSES = ["ACCEPTED", "REVISION", "REJECTED"];
+
+const thresholdValue = computed(() => {
+  const payload = (adjDetail.value?.adjudication ?? null) as any;
+  const t = payload?.threshold;
+  return typeof t === "number" ? t : 70;
+});
 
 async function fetchPapers() {
   loading.value = true;
@@ -337,6 +382,11 @@ async function showAdjudication(paper: Paper) {
   } finally {
     adjLoading.value = false;
   }
+}
+
+function openCertificate(paper: Paper) {
+  certPaper.value = paper;
+  certDialogVisible.value = true;
 }
 
 function openReviseDialog() {
@@ -417,7 +467,7 @@ onMounted(fetchPapers);
 
 <style scoped>
 .paper-list {
-  max-width: 1100px;
+  max-width: 1300px;
 }
 
 .card-header {
@@ -581,5 +631,11 @@ onMounted(fetchPapers);
   font-size: 12px;
   color: #909399;
   line-height: 1.5;
+}
+
+.comment-text {
+  font-size: 13px;
+  color: #606266;
+  white-space: pre-wrap;
 }
 </style>

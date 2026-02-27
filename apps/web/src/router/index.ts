@@ -14,7 +14,11 @@ export const router = createRouter({
   routes: [
     { path: "/login", component: () => import("../views/LoginView.vue") },
     { path: "/register", component: () => import("../views/RegisterView.vue") },
-    { path: "/verify", component: () => import("../views/VerifyView.vue") },
+    {
+      path: "/verify",
+      component: () => import("../views/VerifyView.vue"),
+      meta: { requiresAuth: false },
+    },
 
     {
       path: "/",
@@ -80,6 +84,11 @@ export const router = createRouter({
 });
 
 router.beforeEach((to, _from, next) => {
+  // 版权存证验证页：所有人可访问，不做登录与权限拦截
+  if (to.path === "/verify") {
+    return next();
+  }
+
   const auth = useAuthStore();
 
   if (!to.meta.requiresAuth) {

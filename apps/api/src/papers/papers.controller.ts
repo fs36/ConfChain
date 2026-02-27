@@ -20,6 +20,7 @@ import { Request } from "express";
 import { diskStorage } from "multer";
 import { extname, join } from "path";
 import { JwtAuthGuard } from "../common/jwt-auth.guard";
+import { Public } from "../common/public.decorator";
 import { Roles } from "../common/roles.decorator";
 import { RolesGuard } from "../common/roles.guard";
 import { CreatePaperDto } from "./dto/create-paper.dto";
@@ -95,12 +96,14 @@ export class PapersController {
   }
 
   /** 公开：通过哈希验证版权（无需鉴权） */
+  @Public()
   @Get("verify")
   verify(@Query("fileHash") fileHash: string) {
     return this.papersService.verifyByHash(fileHash);
   }
 
   /** 公开：上传文件验证版权（无需鉴权） */
+  @Public()
   @Post("verify/file")
   @UseInterceptors(FileInterceptor("file", { storage: multerStorage }))
   async verifyByFile(
