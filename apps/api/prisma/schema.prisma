@@ -1,0 +1,107 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  AUTHOR
+  REVIEWER
+}
+
+enum PaperStatus {
+  UPLOADED
+  CERTIFIED
+  UNDER_REVIEW
+  ACCEPTED
+  REVISION
+  REJECTED
+}
+
+model User {
+  id           String      @id @default(cuid())
+  email        String      @unique
+  name         String
+  passwordHash String
+  role         Role        @default(AUTHOR)
+  walletAddr   String?     @unique
+  publicKey    String?
+  privateKey   String?
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  papers       Paper[]
+  reviewTasks  ReviewTask[]
+}
+
+model Paper {
+  id              String          @id @default(cuid())
+  title           String
+  abstract        String
+  keywords        String
+  filePath        String
+  fileHash        String?         @unique
+  status          PaperStatus     @default(UPLOADED)
+  txHash          String?
+  blockHeight     Int?
+  certifiedAt     DateTime?
+  authorId        String
+  author          User            @relation(fields: [authorId], references: [id])
+  reviewTasks     ReviewTask[]
+  reviewResults   ReviewResult[]
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+}
+
+model ReviewTask {
+  id          String   @id @default(cuid())
+  paperId     String
+  reviewerId  String
+  deadlineAt  DateTime
+  status      String   @default("ASSIGNED")
+  assignTxHash String?
+  paper       Paper    @relation(fields: [paperId], references: [id])
+  reviewer    User     @relation(fields: [reviewerId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model ReviewResult {
+  id           String   @id @default(cuid())
+  paperId       String
+  reviewerId    String
+  score         Int
+  recommendation String
+  commentCipher String
+  txHash        String?
+  paper         Paper   @relation(fields: [paperId], references: [id])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model ConferenceConfig {
+  id             String   @id @default(cuid())
+  conferenceName String
+  submitStartAt  DateTime
+  submitEndAt    DateTime
+  reviewDays     Int
+  acceptThreshold Int     @default(70)
+  weightInnovation Int    @default(40)
+  weightScience   Int     @default(40)
+  weightWriting   Int     @default(20)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+}
+
+model ChainTransaction {
+  id          String   @id @default(cuid())
+  bizType     String
+  bizId       String
+  txHash      String   @unique
+  blockHeight Int?
+  payload     Json?
+  createdAt   DateTime @default(now())
+}
