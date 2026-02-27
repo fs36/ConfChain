@@ -161,6 +161,7 @@ async function onSubmit() {
 
     const { data } = await api.post("/papers", formData, {
       headers: { "Content-Type": "multipart/form-data" },
+      timeout: 90000,
       onUploadProgress: (e) => {
         if (e.total) {
           uploadProgress.value = Math.round((e.loaded * 100) / e.total);

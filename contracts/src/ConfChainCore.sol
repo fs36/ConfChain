@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.24;
+pragma solidity ^0.8.11;
 
 /**
  * ConfChainCore - 版权存证与审稿核心合约
@@ -38,16 +38,16 @@ contract ConfChainCore {
     address public owner;
 
     /// fileHash => CopyrightRecord
-    mapping(string => CopyrightRecord) public records;
+    mapping(string => CopyrightRecord) private records;
 
     /// paperId => ReviewRecord[]
-    mapping(string => ReviewRecord[]) public reviewResults;
+    mapping(string => ReviewRecord[]) private reviewResults;
 
     /// paperId => 最终裁定结论
-    mapping(string => string) public finalDecision;
+    mapping(string => string) private finalDecision;
 
     /// paperId => 裁定时间
-    mapping(string => uint256) public decisionTimestamp;
+    mapping(string => uint256) private decisionTimestamp;
 
     // ---------- 事件 ----------
 
@@ -92,10 +92,10 @@ contract ConfChainCore {
      * @param metadataHash 元数据 SHA-256
      */
     function submitCopyright(
-        string  calldata fileHash,
-        address          author,
-        uint256          timestamp,
-        bytes32          metadataHash
+        string calldata fileHash,
+        address author,
+        uint256 timestamp,
+        bytes32 metadataHash
     ) external onlyOwner {
         require(!records[fileHash].exists, "already certified");
         records[fileHash] = CopyrightRecord(fileHash, author, timestamp, metadataHash, true);
@@ -111,11 +111,11 @@ contract ConfChainCore {
      * @param commentHash   评语 SHA-256
      */
     function submitReview(
-        string  calldata paperId,
-        address          reviewer,
-        uint8            score,
-        string  calldata recommendation,
-        bytes32          commentHash
+        string calldata paperId,
+        address reviewer,
+        uint8 score,
+        string calldata recommendation,
+        bytes32 commentHash
     ) external onlyOwner {
         require(score <= 100, "invalid score");
         reviewResults[paperId].push(
@@ -133,7 +133,7 @@ contract ConfChainCore {
         string calldata paperId,
         string calldata decision
     ) external onlyOwner {
-        finalDecision[paperId]     = decision;
+        finalDecision[paperId] = decision;
         decisionTimestamp[paperId] = block.timestamp;
         emit DecisionFinalized(paperId, decision, block.timestamp);
     }
@@ -141,7 +141,8 @@ contract ConfChainCore {
     // ---------- 查询函数 ----------
 
     function getCopyright(string calldata fileHash)
-        external view
+        external
+        view
         returns (address author, uint256 timestamp, bytes32 metadataHash, bool exists)
     {
         CopyrightRecord storage r = records[fileHash];
@@ -149,14 +150,16 @@ contract ConfChainCore {
     }
 
     function getReviewCount(string calldata paperId)
-        external view
+        external
+        view
         returns (uint256)
     {
         return reviewResults[paperId].length;
     }
 
     function getReview(string calldata paperId, uint256 index)
-        external view
+        external
+        view
         returns (
             uint8 score,
             string memory recommendation,
@@ -170,7 +173,8 @@ contract ConfChainCore {
     }
 
     function getDecision(string calldata paperId)
-        external view
+        external
+        view
         returns (string memory decision, uint256 timestamp)
     {
         return (finalDecision[paperId], decisionTimestamp[paperId]);

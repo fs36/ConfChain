@@ -1,0 +1,126 @@
+[
+  {
+    "inputs": [],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "name": "fileHash", "type": "string" },
+      { "indexed": true, "name": "author", "type": "address" },
+      { "indexed": false, "name": "timestamp", "type": "uint256" },
+      { "indexed": false, "name": "metadataHash", "type": "bytes32" }
+    ],
+    "name": "CopyrightSubmitted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "name": "paperId", "type": "string" },
+      { "indexed": true, "name": "reviewer", "type": "address" },
+      { "indexed": false, "name": "score", "type": "uint8" },
+      { "indexed": false, "name": "recommendation", "type": "string" }
+    ],
+    "name": "ReviewSubmitted",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      { "indexed": true, "name": "paperId", "type": "string" },
+      { "indexed": false, "name": "decision", "type": "string" },
+      { "indexed": false, "name": "timestamp", "type": "uint256" }
+    ],
+    "name": "DecisionFinalized",
+    "type": "event"
+  },
+  {
+    "inputs": [],
+    "name": "owner",
+    "outputs": [{ "name": "", "type": "address" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "name": "fileHash", "type": "string" },
+      { "name": "author", "type": "address" },
+      { "name": "timestamp", "type": "uint256" },
+      { "name": "metadataHash", "type": "bytes32" }
+    ],
+    "name": "submitCopyright",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "name": "paperId", "type": "string" },
+      { "name": "reviewer", "type": "address" },
+      { "name": "score", "type": "uint8" },
+      { "name": "recommendation", "type": "string" },
+      { "name": "commentHash", "type": "bytes32" }
+    ],
+    "name": "submitReview",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "name": "paperId", "type": "string" },
+      { "name": "decision", "type": "string" }
+    ],
+    "name": "finalizeDecision",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "name": "fileHash", "type": "string" }],
+    "name": "getCopyright",
+    "outputs": [
+      { "name": "author", "type": "address" },
+      { "name": "timestamp", "type": "uint256" },
+      { "name": "metadataHash", "type": "bytes32" },
+      { "name": "exists", "type": "bool" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "name": "paperId", "type": "string" }],
+    "name": "getReviewCount",
+    "outputs": [{ "name": "", "type": "uint256" }],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      { "name": "paperId", "type": "string" },
+      { "name": "index", "type": "uint256" }
+    ],
+    "name": "getReview",
+    "outputs": [
+      { "name": "score", "type": "uint8" },
+      { "name": "recommendation", "type": "string" },
+      { "name": "commentHash", "type": "bytes32" },
+      { "name": "reviewer", "type": "address" },
+      { "name": "timestamp", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [{ "name": "paperId", "type": "string" }],
+    "name": "getDecision",
+    "outputs": [
+      { "name": "decision", "type": "string" },
+      { "name": "timestamp", "type": "uint256" }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  }
+]

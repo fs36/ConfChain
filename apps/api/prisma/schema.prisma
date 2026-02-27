@@ -48,6 +48,8 @@ model Paper {
   txHash          String?
   blockHeight     Int?
   certifiedAt     DateTime?
+  /** 存证是否为模拟（未真实上链） */
+  certifySimulated Boolean?  @default(false)
   authorId        String
   author          User            @relation(fields: [authorId], references: [id])
   reviewTasks     ReviewTask[]

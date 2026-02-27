@@ -124,6 +124,47 @@ export class PapersController {
     return res.json(result);
   }
 
+  /** 查询稿件裁定结果（作者本人或管理员） */
+  @Get(":id/adjudication")
+  @Roles(Role.AUTHOR, Role.ADMIN)
+  adjudication(@Req() req: AuthUserRequest, @Param("id") id: string) {
+    const isAdmin = req.user.role === Role.ADMIN;
+    return this.papersService.getAdjudication(id, req.user.sub ?? req.user.id, isAdmin);
+  }
+
+  /** 审稿人下载已分配稿件的文件（仅当有审稿任务时可访问） */
+  @Get(":id/download-as-reviewer")
+  @Roles(Role.REVIEWER)
+  async downloadAsReviewer(
+    @Req() req: AuthUserRequest,
+    @Param("id") id: string,
+    @Res() res: Response,
+  ) {
+    const { absPath, fileName } = await this.papersService.getFilePathForReviewer(
+      id,
+      req.user.sub ?? req.user.id,
+    );
+    res.download(absPath, fileName);
+  }
+
+  /** 作者提交修订稿（仅 REVISION 状态）：上传新文件并重新存证 */
+  @Post(":id/revise")
+  @Roles(Role.AUTHOR)
+  @UseInterceptors(FileInterceptor("file", { storage: multerStorage }))
+  async revise(
+    @Req() req: AuthUserRequest,
+    @Param("id") id: string,
+    @UploadedFile(
+      new ParseFilePipe({
+        validators: [new MaxFileSizeValidator({ maxSize: 20 * 1024 * 1024 })],
+        fileIsRequired: true,
+      }),
+    )
+    file: Express.Multer.File,
+  ) {
+    return this.papersService.submitRevision(id, req.user.sub ?? req.user.id, file);
+  }
+
   /** 下载稿件文件（AUTHOR 本人 或 ADMIN） */
   @Get(":id/download")
   @Roles(Role.AUTHOR, Role.ADMIN)
