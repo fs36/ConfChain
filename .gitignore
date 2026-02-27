@@ -7,7 +7,8 @@ coverage/
 *.log
 .DS_Store
 Thumbs.db
-apps/api/uploads/
+apps/api/uploads/*
+!apps/api/uploads/.gitkeep
 apps/api/certs/
 contracts/artifacts/
 contracts/cache/
