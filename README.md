@@ -22,6 +22,7 @@
 
 1. 复制环境变量模板：
    - `cp .env.example .env`（Windows 可手动复制）
+   - 若使用项目自带 Docker MySQL，请将 `DATABASE_URL` 设为 `mysql://confchain:confchain@localhost:3307/confchain`
 2. 启动本地 MySQL 8（Docker）：
    - `pnpm compose:up`
 3. 安装依赖：
@@ -33,6 +34,14 @@
    - `pnpm dev:api`
 6. 启动前端：
    - `pnpm dev:web`
+
+## 数据库说明（重点）
+
+- ORM：Prisma（Schema 位于 `apps/api/prisma/schema.prisma`）
+- 迁移目录：`apps/api/prisma/migrations/`
+- 当前核心表：`User`、`Paper`、`ReviewTask`、`ReviewResult`、`ConferenceConfig`、`ChainTransaction`
+- Docker MySQL 端口映射：宿主机 `3307` -> 容器 `3306`
+- 详细表结构与数据流说明：见 `docs/开发交接_表结构与API说明.md`
 
 ## 环境连接说明（当前推荐模式）
 
