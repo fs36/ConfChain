@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ConfChain 网络拓扑图</title>
+    <style>
+      :root {
+        --bg: #ffffff;
+        --panel: #f7faff;
+        --line: #d8e2f3;
+        --text: #1f2d3d;
+        --muted: #6a7c9b;
+        --node: #f9fbff;
+        --node-border: #93b2df;
+        --accent: #4a90e2;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 20px;
+        background: var(--bg);
+        color: var(--text);
+        font-family: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+      }
+
+      .card {
+        max-width: 1280px;
+        margin: 0 auto;
+        border: 1px solid #d8e2f3;
+        border-radius: 14px;
+        background: linear-gradient(180deg, #ffffff 0%, #f6f9ff 100%);
+        padding: 16px;
+      }
+
+      .title {
+        text-align: center;
+        font-size: 20px;
+        font-weight: 700;
+        margin: 0 0 8px;
+        letter-spacing: 0.5px;
+      }
+
+      .subtitle {
+        text-align: center;
+        color: var(--muted);
+        margin: 0 0 12px;
+        font-size: 13px;
+      }
+
+      svg {
+        width: 100%;
+        height: auto;
+        display: block;
+      }
+
+      .zone {
+        fill: #f7faff;
+        stroke: #c8d8f0;
+        stroke-width: 1.5;
+      }
+
+      .zone-title {
+        fill: #2f3b59;
+        font-size: 18px;
+        font-weight: 700;
+      }
+
+      .node {
+        fill: var(--node);
+        stroke: var(--node-border);
+        stroke-width: 1.5;
+      }
+
+      .node-title {
+        fill: #1f2d3d;
+        font-size: 16px;
+        font-weight: 700;
+      }
+
+      .node-desc {
+        fill: #5f7295;
+        font-size: 13px;
+      }
+
+      .link {
+        stroke: #4a90e2;
+        stroke-width: 2.4;
+        fill: none;
+      }
+
+      .link-dashed {
+        stroke-dasharray: 7 7;
+      }
+
+      .link-label {
+        fill: #5678a8;
+        font-size: 12px;
+      }
+
+      .badge {
+        fill: rgba(74, 144, 226, 0.12);
+        stroke: #4a90e2;
+      }
+
+      .badge-text {
+        fill: #476b9d;
+        font-size: 12px;
+      }
+
+      @media (max-width: 860px) {
+        body {
+          padding: 10px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card">
+      <h1 class="title">ConfChain 网络拓扑图</h1>
+      <p class="subtitle">本地开发机（Windows/macOS）与 Ubuntu 链环境联调拓扑</p>
+
+      <svg viewBox="0 0 1280 760" role="img" aria-label="ConfChain network topology">
+        <defs>
+          <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+            <path d="M 0 0 L 10 5 L 0 10 z" fill="#4a90e2" />
+          </marker>
+        </defs>
+
+        <rect class="zone" x="26" y="58" rx="12" ry="12" width="600" height="660" />
+        <text class="zone-title" x="50" y="92">客户端与应用区（Windows/macOS）</text>
+
+        <rect class="zone" x="654" y="58" rx="12" ry="12" width="600" height="660" />
+        <text class="zone-title" x="678" y="92">联盟链区（Ubuntu）</text>
+
+        <rect class="node" x="70" y="140" rx="10" ry="10" width="220" height="88" />
+        <text class="node-title" x="95" y="176">浏览器客户端</text>
+        <text class="node-desc" x="95" y="200">访问: localhost:5173</text>
+
+        <rect class="node" x="332" y="140" rx="10" ry="10" width="250" height="88" />
+        <text class="node-title" x="356" y="176">Nginx / Vite</text>
+        <text class="node-desc" x="356" y="200">静态资源与反向代理</text>
+
+        <rect class="node" x="192" y="308" rx="10" ry="10" width="300" height="104" />
+        <text class="node-title" x="220" y="346">NestJS API</text>
+        <text class="node-desc" x="220" y="370">服务端口: localhost:3000</text>
+        <text class="node-desc" x="220" y="390">认证: JWT + RBAC</text>
+
+        <rect class="node" x="70" y="520" rx="10" ry="10" width="250" height="110" />
+        <text class="node-title" x="96" y="560">MySQL 8</text>
+        <text class="node-desc" x="96" y="584">Docker 映射: 3307 -> 3306</text>
+        <text class="node-desc" x="96" y="604">业务数据持久化</text>
+
+        <rect class="node" x="350" y="520" rx="10" ry="10" width="250" height="110" />
+        <text class="node-title" x="376" y="560">uploads 文件存储</text>
+        <text class="node-desc" x="376" y="584">目录: apps/api/uploads</text>
+        <text class="node-desc" x="376" y="604">稿件原文与附件</text>
+
+        <rect class="node" x="730" y="220" rx="10" ry="10" width="330" height="110" />
+        <text class="node-title" x="756" y="260">WeBASE-Front</text>
+        <text class="node-desc" x="756" y="284">访问: http://&lt;ubuntu-ip&gt;:5002/WeBASE-Front</text>
+        <text class="node-desc" x="756" y="304">链网关与合约调用入口</text>
+
+        <rect class="node" x="730" y="410" rx="10" ry="10" width="250" height="104" />
+        <text class="node-title" x="756" y="448">FISCO RPC</text>
+        <text class="node-desc" x="756" y="472">JSON-RPC: :20200</text>
+        <text class="node-desc" x="756" y="492">节点通信入口</text>
+
+        <rect class="node" x="1010" y="410" rx="10" ry="10" width="210" height="104" />
+        <text class="node-title" x="1034" y="448">FISCO BCOS</text>
+        <text class="node-desc" x="1034" y="472">ConfChainCore.sol</text>
+        <text class="node-desc" x="1034" y="492">联盟链账本</text>
+
+        <path class="link" marker-end="url(#arrow)" d="M 290 184 L 332 184" />
+        <path class="link" marker-end="url(#arrow)" d="M 457 228 L 342 308" />
+
+        <path class="link" marker-end="url(#arrow)" d="M 282 412 L 186 520" />
+        <path class="link" marker-end="url(#arrow)" d="M 402 412 L 468 520" />
+
+        <path class="link link-dashed" marker-end="url(#arrow)" d="M 492 360 L 730 274" />
+        <text class="link-label" x="550" y="298">HTTP/HTTPS + JSON</text>
+
+        <path class="link" marker-end="url(#arrow)" d="M 855 330 L 855 410" />
+        <text class="link-label" x="868" y="374">JSON-RPC</text>
+
+        <path class="link" marker-end="url(#arrow)" d="M 980 462 L 1010 462" />
+
+        <rect class="badge" x="92" y="668" rx="7" ry="7" width="220" height="30" />
+        <text class="badge-text" x="110" y="688">前端入口：localhost:5173</text>
+
+        <rect class="badge" x="338" y="668" rx="7" ry="7" width="220" height="30" />
+        <text class="badge-text" x="356" y="688">API 入口：localhost:3000</text>
+
+        <rect class="badge" x="726" y="668" rx="7" ry="7" width="240" height="30" />
+        <text class="badge-text" x="744" y="688">WeBASE：ubuntu-ip:5002</text>
+
+        <rect class="badge" x="986" y="668" rx="7" ry="7" width="210" height="30" />
+        <text class="badge-text" x="1004" y="688">RPC：ubuntu-ip:20200</text>
+      </svg>
+    </div>
+  </body>
+</html>

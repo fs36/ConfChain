@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ConfChain 系统架构图</title>
+    <style>
+      :root {
+        --line: #dcdfe6;
+        --text: #303133;
+        --muted: #606266;
+        --bg: #f8fafc;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 24px;
+        font-family: "PingFang SC", "Microsoft YaHei", "Helvetica Neue", Arial, sans-serif;
+        color: var(--text);
+        background: #ffffff;
+      }
+
+      .chart {
+        max-width: 1120px;
+        margin: 0 auto;
+        border: 2px dashed #a0aec0;
+        border-radius: 14px;
+        background: var(--bg);
+        padding: 16px;
+      }
+
+      .title {
+        text-align: center;
+        font-weight: 700;
+        font-size: 18px;
+        margin-bottom: 14px;
+      }
+
+      .layer-section {
+        display: flex;
+        gap: 12px;
+        align-items: stretch;
+      }
+
+      .layer-tag {
+        width: 126px;
+        min-width: 126px;
+        border-radius: 10px;
+        color: #fff;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: 10px 8px;
+      }
+
+      .layer-panel {
+        flex: 1;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: #fff;
+        padding: 10px;
+      }
+
+      .row {
+        display: flex;
+        gap: 10px;
+      }
+
+      .box {
+        flex: 1;
+        padding: 10px;
+        border-radius: 8px;
+        border: 1px solid var(--line);
+        text-align: center;
+        background: #fff;
+        line-height: 1.5;
+      }
+
+      .role {
+        background: #ecf5ff;
+        border-color: #c6e2ff;
+      }
+
+      .frontend {
+        background: #f0f9eb;
+        border-color: #b3e19d;
+        font-weight: 600;
+      }
+
+      .api {
+        background: #fdf6ec;
+        border-color: #f3d19e;
+        font-weight: 600;
+      }
+
+      .service {
+        background: #f9f0ff;
+        border-color: #d3adf7;
+        font-weight: 600;
+      }
+
+      .data-access {
+        background: #edf7ff;
+        border-color: #b3d8ff;
+        font-weight: 600;
+      }
+
+      .storage {
+        background: #f5f7fa;
+      }
+
+      .chain-gateway {
+        background: #f4faff;
+        border-color: #d9ecff;
+        font-weight: 600;
+      }
+
+      .chain {
+        background: #fef0f0;
+        border-color: #fbc4c4;
+        font-weight: 600;
+      }
+
+      .access-tag {
+        background: #ff9f43;
+      }
+
+      .presentation-tag {
+        background: #52c41a;
+      }
+
+      .interface-tag {
+        background: #fa8c16;
+      }
+
+      .business-tag {
+        background: #9254de;
+      }
+
+      .data-access-tag {
+        background: #40a9ff;
+      }
+
+      .storage-tag {
+        background: #597ef7;
+      }
+
+      .chain-adapter-tag {
+        background: #13c2c2;
+      }
+
+      .chain-tag {
+        background: #eb2f96;
+      }
+
+      .arrow {
+        text-align: center;
+        color: var(--muted);
+        font-size: 20px;
+        line-height: 24px;
+        margin: 6px 0;
+      }
+
+      @media (max-width: 860px) {
+        body {
+          padding: 12px;
+        }
+
+        .layer-section {
+          flex-direction: column;
+        }
+
+        .layer-tag {
+          width: 100%;
+          min-width: auto;
+          padding: 8px 12px;
+        }
+
+        .row {
+          flex-direction: column;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="chart">
+      <div class="title">ConfChain 系统分层架构图</div>
+
+      <div class="layer-section">
+        <div class="layer-tag access-tag">用户接入层</div>
+        <div class="layer-panel">
+          <div class="row">
+            <div class="box role">作者</div>
+            <div class="box role">审稿人</div>
+            <div class="box role">管理员</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrow">↓</div>
+
+      <div class="layer-section">
+        <div class="layer-tag presentation-tag">表现层</div>
+        <div class="layer-panel">
+          <div class="box frontend">Web 前端（Vue 3 + Element Plus）</div>
+        </div>
+      </div>
+
+      <div class="arrow">↓</div>
+
+      <div class="layer-section">
+        <div class="layer-tag interface-tag">接口层</div>
+        <div class="layer-panel">
+          <div class="box api">API 服务层（NestJS / REST / JWT / RBAC）</div>
+        </div>
+      </div>
+
+      <div class="arrow">↓</div>
+
+      <div class="layer-section">
+        <div class="layer-tag business-tag">业务层</div>
+        <div class="layer-panel">
+          <div class="box service">Service（存证 / 审稿 / 裁定 / 统计）</div>
+        </div>
+      </div>
+
+      <div class="arrow">↓</div>
+
+      <div class="layer-section">
+        <div class="layer-tag data-access-tag">数据访问层</div>
+        <div class="layer-panel">
+          <div class="box data-access">Prisma ORM</div>
+        </div>
+      </div>
+
+      <div class="arrow">↓</div>
+
+      <div class="layer-section">
+        <div class="layer-tag storage-tag">数据存储层</div>
+        <div class="layer-panel">
+          <div class="row">
+            <div class="box storage">MySQL 8<br />（业务数据）</div>
+            <div class="box storage">uploads 文件存储<br />（稿件原文）</div>
+            <div class="box storage">ChainTransaction 表<br />（链交易流水）</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="arrow">↓</div>
+
+      <div class="layer-section">
+        <div class="layer-tag chain-adapter-tag">区块链适配层</div>
+        <div class="layer-panel">
+          <div class="box chain-gateway">WeBASE-Front（区块链网关）</div>
+        </div>
+      </div>
+
+      <div class="arrow">↓</div>
+
+      <div class="layer-section">
+        <div class="layer-tag chain-tag">合约与链网络层</div>
+        <div class="layer-panel">
+          <div class="box chain">FISCO BCOS + ConfChainCore</div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
