@@ -15,8 +15,8 @@ export class HealthController {
   }
 
   @Get("chain")
-  chain() {
-    const status = this.blockchainService.getNodeStatus();
+  async chain() {
+    const status = await this.blockchainService.getNodeStatus();
     return {
       status: "ok",
       chain: status,

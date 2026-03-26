@@ -29,7 +29,7 @@ export class AuthService {
         email: dto.email,
         name: dto.name,
         passwordHash,
-        role: dto.role ?? Role.AUTHOR,
+        role: Role.AUTHOR,
         walletAddr,
         publicKey: randomBytes(32).toString("hex"),
         privateKey: randomBytes(64).toString("hex"),

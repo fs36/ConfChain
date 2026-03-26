@@ -3,17 +3,12 @@
   "private": true,
   "version": "0.1.0",
   "scripts": {
-    "build": "echo \"contracts build skipped in phase0\"",
+    "build": "echo \"合约通过 WeBASE-Front 部署，无需本地编译\"",
     "test": "vitest run --passWithNoTests",
     "lint": "echo \"solidity lint can be added\"",
-    "format": "echo \"solidity format can be added\"",
-    "deploy:local": "hardhat run scripts/deploy.ts"
+    "format": "echo \"solidity format can be added\""
   },
   "devDependencies": {
-    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
-    "hardhat": "^2.22.19",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.8.2",
     "vitest": "^3.0.8"
   }
 }

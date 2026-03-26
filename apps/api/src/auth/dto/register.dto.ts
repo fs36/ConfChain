@@ -1,5 +1,4 @@
-import { IsEmail, IsEnum, IsString, Length, Matches } from "class-validator";
-import { Role } from "@prisma/client";
+import { IsEmail, IsString, Length, Matches } from "class-validator";
 
 export class RegisterDto {
   @IsString()
@@ -15,7 +14,4 @@ export class RegisterDto {
     message: "Password must include upper/lowercase letters and numbers",
   })
   password!: string;
-
-  @IsEnum(Role)
-  role: Role = Role.AUTHOR;
 }
