@@ -8,7 +8,7 @@ export class UsersService {
 
   findAll() {
     return this.prisma.user.findMany({
-      select: { id: true, email: true, name: true, role: true, walletAddr: true },
+      select: { id: true, email: true, name: true, role: true, walletAddr: true, createdAt: true },
     });
   }
 

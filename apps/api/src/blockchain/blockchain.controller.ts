@@ -4,6 +4,7 @@ import {
   Get,
   Param,
   ParseIntPipe,
+  Post,
   Query,
   UseGuards,
 } from "@nestjs/common";
@@ -11,6 +12,7 @@ import { Role } from "@prisma/client";
 import { JwtAuthGuard } from "../common/jwt-auth.guard";
 import { Roles } from "../common/roles.decorator";
 import { RolesGuard } from "../common/roles.guard";
+import { ChainRetryService } from "./chain-retry.service";
 import { ChainTxService } from "./chain-tx.service";
 import { BlockchainService } from "./blockchain.service";
 
@@ -20,6 +22,7 @@ export class BlockchainController {
   constructor(
     private readonly blockchainService: BlockchainService,
     private readonly chainTxService: ChainTxService,
+    private readonly retryService: ChainRetryService,
   ) {}
 
   /** 节点状态 */
@@ -86,5 +89,37 @@ export class BlockchainController {
         },
       ],
     };
+  }
+
+  /** 待上链队列（分页） */
+  @Get("pending-txs")
+  @Roles(Role.ADMIN)
+  listPendingTxs(
+    @Query("page", new DefaultValuePipe(1), ParseIntPipe) page: number,
+    @Query("pageSize", new DefaultValuePipe(20), ParseIntPipe) pageSize: number,
+    @Query("status") status?: string,
+  ) {
+    return this.retryService.listPending(page, pageSize, status);
+  }
+
+  /** 重试所有待上链交易 */
+  @Post("retry")
+  @Roles(Role.ADMIN)
+  retryAll() {
+    return this.retryService.retryPending();
+  }
+
+  /** 重试单条待上链交易 */
+  @Post("retry/:id")
+  @Roles(Role.ADMIN)
+  retryOne(@Param("id") id: string) {
+    return this.retryService.retryOne(id);
+  }
+
+  /** 待上链队列统计 */
+  @Get("pending-stats")
+  @Roles(Role.ADMIN)
+  pendingStats() {
+    return this.retryService.pendingStats();
   }
 }

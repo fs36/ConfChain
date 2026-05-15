@@ -34,16 +34,18 @@ export class ChainTxService {
     };
   }
 
-  /** 统计各业务类型交易数量 */
+  /** 统计各业务类型交易数量（含待上链） */
   async stats() {
-    const [total, certifyCount, reviewCount, adjudicateCount] =
+    const [total, certifyCount, reviewCount, adjudicateCount, pendingCount, failedCount] =
       await this.prisma.$transaction([
         this.prisma.chainTransaction.count(),
         this.prisma.chainTransaction.count({ where: { bizType: "COPYRIGHT_CERTIFY" } }),
         this.prisma.chainTransaction.count({ where: { bizType: "REVIEW_SUBMIT" } }),
         this.prisma.chainTransaction.count({ where: { bizType: "ADJUDICATE" } }),
+        this.prisma.pendingChainTx.count({ where: { status: "PENDING" } }),
+        this.prisma.pendingChainTx.count({ where: { status: "FAILED" } }),
       ]);
-    return { total, certifyCount, reviewCount, adjudicateCount };
+    return { total, certifyCount, reviewCount, adjudicateCount, pendingCount, failedCount };
   }
 
   /** 通过业务 ID 查询该稿件/任务相关的所有链上记录 */

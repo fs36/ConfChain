@@ -16,7 +16,7 @@
           <div class="cert-logo">⛓</div>
           <div class="cert-title-block">
             <div class="cert-title">区块链存证证书</div>
-            <div class="cert-subtitle">Blockchain Copyright Certificate · ConfChain</div>
+            <div class="cert-subtitle">Blockchain Copyright Certificate</div>
           </div>
           <div class="cert-seal">CERTIFIED</div>
         </div>
@@ -25,7 +25,7 @@
 
         <!-- 声明文本 -->
         <p class="cert-declare">
-          兹证明以下学术论文已在 <strong>ConfChain 联盟区块链</strong> 上完成版权存证，
+          兹证明以下学术论文已在 <strong>联盟区块链</strong> 上完成版权存证，
           该存证记录具有时间戳、不可篡改等技术保证，可作为版权归属的电子凭证。
         </p>
 
@@ -89,14 +89,14 @@
               <li>系统将自动比对区块链上的存证记录</li>
             </ol>
             <div class="cert-notice">
-              本证书由 ConfChain 系统自动生成，有效性以区块链链上记录为准。
+              本证书由基于区块链的学术会议匿名审稿与版权存证系统自动生成，有效性以区块链链上记录为准。
             </div>
           </div>
         </div>
 
         <!-- 底部签章 -->
         <div class="cert-bottom">
-          <div class="cert-chain-name">ConfChain 学术会议版权存证平台</div>
+          <div class="cert-chain-name">基于区块链的学术会议匿名审稿与版权存证系统</div>
           <div class="cert-gen-time">证书生成时间：{{ generatedAt }}</div>
         </div>
       </div>

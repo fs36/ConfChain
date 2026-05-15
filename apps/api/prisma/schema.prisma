@@ -108,3 +108,25 @@ model ChainTransaction {
   payload     Json?
   createdAt   DateTime @default(now())
 }
+
+model PendingChainTx {
+  id                   String    @id @default(cuid())
+  bizType              String
+  bizId                String
+  contractName         String
+  contractAddress      String
+  funcName             String
+  funcParam            Json
+  maxRetries           Int       @default(5)
+  retryCount           Int       @default(0)
+  nextRetryAt          DateTime  @default(now())
+  status               String    @default("PENDING")
+  lastError            String?
+  confirmedTxHash      String?
+  confirmedBlockHeight Int?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  @@index([status, nextRetryAt])
+  @@index([bizType, bizId])
+}

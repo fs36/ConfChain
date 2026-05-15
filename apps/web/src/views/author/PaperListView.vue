@@ -24,9 +24,9 @@
             </el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="状态" width="120">
+        <el-table-column label="状态" width="130">
           <template #default="{ row }">
-            <el-tag :type="row.certifySimulated ? 'warning' : statusTagType(row.status)" size="small">
+            <el-tag :type="row.certifySimulated ? 'warning' : row.queued ? 'warning' : statusTagType(row.status)" size="small">
               {{ statusLabel(row) }}
             </el-tag>
           </template>
@@ -48,6 +48,7 @@
                 </el-tooltip>
               </div>
             </template>
+            <span v-else-if="row.queued" class="queued-hint">等待上链…</span>
             <span v-else class="not-certified">未存证</span>
           </template>
         </el-table-column>
@@ -110,11 +111,19 @@
             <span class="mono">{{ selectedPaper.fileHash ?? "未存证" }}</span>
           </el-descriptions-item>
           <el-descriptions-item label="链上 TxHash">
-            <span class="mono">{{ selectedPaper.txHash ?? "-" }}</span>
-            <el-tag v-if="selectedPaper.certifySimulated" type="warning" size="small" style="margin-left:8px">模拟</el-tag>
+            <template v-if="selectedPaper.txHash">
+              <span class="mono">{{ selectedPaper.txHash }}</span>
+              <el-tag v-if="selectedPaper.certifySimulated" type="warning" size="small" style="margin-left:8px">模拟</el-tag>
+            </template>
+            <span v-else-if="selectedPaper.queued" class="queued-hint">等待上链（已加入重试队列）</span>
+            <span v-else style="color:#c0c4cc">-</span>
           </el-descriptions-item>
           <el-descriptions-item label="区块高度">
-            {{ selectedPaper.blockHeight ?? "-" }}
+            <template v-if="selectedPaper.blockHeight != null && selectedPaper.blockHeight > 0">
+              {{ selectedPaper.blockHeight }}
+            </template>
+            <span v-else-if="selectedPaper.queued" class="queued-hint">排队中</span>
+            <span v-else style="color:#c0c4cc">-</span>
           </el-descriptions-item>
           <el-descriptions-item label="存证时间">
             {{ selectedPaper.certifiedAt ? new Date(selectedPaper.certifiedAt).toLocaleString("zh-CN") : "-" }}
@@ -295,6 +304,7 @@ interface Paper {
   keywords: string;
   status: string;
   certifySimulated?: boolean | null;
+  queued?: boolean;
   fileHash: string | null;
   txHash: string | null;
   blockHeight: number | null;
@@ -439,6 +449,7 @@ const STATUS_TYPE: Record<string, "success" | "warning" | "danger" | "info"> = {
 
 function statusLabel(row: Paper) {
   if (row.status === "CERTIFIED" && row.certifySimulated) return "模拟存证";
+  if (row.status === "UPLOADED" && row.queued) return "排队上链";
   return STATUS_LABEL[row.status] ?? row.status;
 }
 
@@ -459,7 +470,9 @@ function verdictIcon(status: string) {
 }
 
 function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("zh-CN");
+  if (!dateStr) return "-";
+  const d = new Date(dateStr);
+  return isNaN(d.getTime()) ? "-" : d.toLocaleDateString("zh-CN");
 }
 
 onMounted(fetchPapers);
@@ -468,6 +481,7 @@ onMounted(fetchPapers);
 <style scoped>
 .paper-list {
   max-width: 1300px;
+  margin: 0 auto;
 }
 
 .card-header {
@@ -492,6 +506,11 @@ onMounted(fetchPapers);
 .not-certified {
   font-size: 12px;
   color: #c0c4cc;
+}
+
+.queued-hint {
+  font-size: 12px;
+  color: #e6a23c;
 }
 
 .mono {

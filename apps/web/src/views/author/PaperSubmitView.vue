@@ -70,25 +70,41 @@
       <!-- 存证成功结果展示 -->
       <el-result
         v-if="certifyResult"
-        icon="success"
-        title="投稿并版权存证成功"
+        :icon="certifyResult.queued ? 'warning' : 'success'"
+        :title="certifyResult.queued ? '投稿成功，等待链上存证' : '投稿并版权存证成功'"
         style="margin-top: 24px"
       >
         <template #sub-title>
+          <el-alert
+            v-if="certifyResult.queued"
+            type="warning"
+            show-icon
+            :closable="false"
+            style="margin-bottom: 12px"
+          >
+            上链请求已加入重试队列，系统将在 30 秒后自动重试（最多重试 5 次）。
+            您可以前往「我的稿件」查看排队状态。
+          </el-alert>
           <el-descriptions :column="1" border>
             <el-descriptions-item label="论文标题">{{ certifyResult.title }}</el-descriptions-item>
             <el-descriptions-item label="文件哈希">
               <span class="mono">{{ certifyResult.fileHash }}</span>
             </el-descriptions-item>
             <el-descriptions-item label="交易哈希 (TxHash)">
-              <el-tag type="success" class="mono">{{ certifyResult.txHash }}</el-tag>
-              <el-tag v-if="certifyResult.simulated" type="warning" size="small" style="margin-left:8px">模拟</el-tag>
+              <template v-if="certifyResult.txHash">
+                <el-tag type="success" class="mono">{{ certifyResult.txHash }}</el-tag>
+                <el-tag v-if="certifyResult.simulated" type="warning" size="small" style="margin-left:8px">模拟</el-tag>
+              </template>
+              <span v-else style="color:#e6a23c">等待上链（已加入重试队列）</span>
             </el-descriptions-item>
             <el-descriptions-item label="区块高度">
-              {{ certifyResult.blockHeight }}
+              <template v-if="certifyResult.blockHeight != null && certifyResult.blockHeight > 0">
+                {{ certifyResult.blockHeight }}
+              </template>
+              <span v-else style="color:#e6a23c">排队中</span>
             </el-descriptions-item>
             <el-descriptions-item label="存证时间">
-              {{ new Date(certifyResult.certifiedAt).toLocaleString("zh-CN") }}
+              {{ certifyResult.certifiedAt ? new Date(certifyResult.certifiedAt).toLocaleString("zh-CN") : "等待链上确认" }}
             </el-descriptions-item>
           </el-descriptions>
         </template>
@@ -170,7 +186,13 @@ async function onSubmit() {
     });
 
     certifyResult.value = data;
-    ElMessage.success(data.simulated ? "投稿成功（链为模拟模式）" : "投稿并链上存证成功！");
+    if (data.queued) {
+      ElMessage.warning("投稿成功！上链请求已加入重试队列，系统将稍后自动上链");
+    } else if (data.simulated) {
+      ElMessage.success("投稿成功（链为模拟模式）");
+    } else {
+      ElMessage.success("投稿并链上存证成功！");
+    }
   } finally {
     loading.value = false;
     uploading.value = false;
@@ -181,6 +203,7 @@ async function onSubmit() {
 <style scoped>
 .paper-submit {
   max-width: 800px;
+  margin: 0 auto;
 }
 
 .upload-area-icon {

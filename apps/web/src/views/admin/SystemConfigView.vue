@@ -12,7 +12,7 @@
         <el-skeleton :rows="3" animated />
       </div>
 
-      <div v-else style="max-width: 520px">
+      <div v-else style="text-align: center">
         <p class="intro">
           当前裁定规则：平均分
           <strong>≥ 阈值 + 10</strong>
@@ -23,7 +23,7 @@
           拒绝。
         </p>
 
-        <el-form :model="form" label-width="140px">
+        <el-form :model="form" label-width="140px" style="max-width: 520px; margin: 0 auto;">
           <el-form-item label="录用分数阈值">
             <div class="threshold-block">
               <el-slider
@@ -108,6 +108,7 @@ onMounted(fetchConfig);
 <style scoped>
 .config-view {
   max-width: 780px;
+  margin: 0 auto;
 }
 
 .card-header {

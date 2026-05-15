@@ -88,15 +88,25 @@ export class PapersService {
       throw err;
     }
 
-    // 异步上链（同步等待，失败降级）
+    // 异步上链（失败自动入队重试）
     const onchain = await this.blockchainService.certifyCopyright({
       fileHash,
       authorAddress: author.walletAddr ?? "0x0",
       timestamp: Date.now(),
       metadataHash,
+      paperId: paper.id,
     });
 
-    // 更新上链结果（含是否模拟）
+    if (onchain.queued) {
+      // 上链失败已入队，Paper 保持 UPLOADED 状态，等待后台重试
+      return {
+        ...paper,
+        queued: true,
+        pendingTxId: onchain.pendingTxId,
+      };
+    }
+
+    // 更新上链结果
     const updated = await this.prisma.paper.update({
       where: { id: paper.id },
       data: {
@@ -144,7 +154,16 @@ export class PapersService {
       authorAddress: paper.author.walletAddr ?? "0x0",
       timestamp: Date.now(),
       metadataHash,
+      paperId,
     });
+
+    if (onchain.queued) {
+      return {
+        ...paper,
+        queued: true,
+        pendingTxId: onchain.pendingTxId,
+      };
+    }
 
     const updated = await this.prisma.paper.update({
       where: { id: paperId },
@@ -171,18 +190,35 @@ export class PapersService {
     return { ...updated, simulated: onchain.simulated };
   }
 
-  listAll() {
-    return this.prisma.paper.findMany({
+  async listAll() {
+    const papers = await this.prisma.paper.findMany({
       orderBy: { createdAt: "desc" },
       include: { author: { select: { id: true, name: true, email: true } } },
     });
+    return this.attachQueuedFlag(papers);
   }
 
-  listMine(authorId: string) {
-    return this.prisma.paper.findMany({
+  async listMine(authorId: string) {
+    const papers = await this.prisma.paper.findMany({
       where: { authorId },
       orderBy: { createdAt: "desc" },
     });
+    return this.attachQueuedFlag(papers);
+  }
+
+  /** 为论文列表附加 queued 标记（是否存在待上链的排队记录） */
+  private async attachQueuedFlag<T extends { id: string }>(papers: T[]): Promise<(T & { queued: boolean })[]> {
+    if (papers.length === 0) return papers as (T & { queued: boolean })[];
+    const paperIds = papers.map((p) => p.id);
+    const pendingSet = new Set(
+      (
+        await this.prisma.pendingChainTx.findMany({
+          where: { bizId: { in: paperIds }, status: "PENDING" },
+          select: { bizId: true },
+        })
+      ).map((r) => r.bizId),
+    );
+    return papers.map((p) => ({ ...p, queued: pendingSet.has(p.id) }));
   }
 
   /** 通过哈希验证版权（公开接口） */
@@ -329,7 +365,16 @@ export class PapersService {
       authorAddress: paper.author.walletAddr ?? "0x0",
       timestamp: Date.now(),
       metadataHash,
+      paperId,
     });
+
+    if (onchain.queued) {
+      return {
+        ...paper,
+        queued: true,
+        pendingTxId: onchain.pendingTxId,
+      };
+    }
 
     const updated = await this.prisma.paper.update({
       where: { id: paperId },

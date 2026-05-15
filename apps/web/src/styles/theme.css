@@ -60,7 +60,19 @@
   --el-font-family: var(--font-body);
 }
 
-/* 全局基础 */
+/* 全局基础：高度链 + 消除双滚动条 */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
 html {
   font-size: 16px;
   -webkit-font-smoothing: antialiased;
@@ -70,6 +82,10 @@ body {
   font-family: var(--font-body);
   color: var(--color-text);
   background-color: var(--color-bg-page);
+}
+
+#app {
+  height: 100%;
 }
 
 /* 标题使用衬线体，形成对比 */
@@ -115,3 +131,22 @@ h1, h2, h3, .page-title, .auth-header h2, .verify-header h1 {
 }
 
 /* 主按钮与链接统一使用主题色（已通过 --el-color-primary 生效） */
+
+/* 全局滚动条美化 */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.12);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.22);
+}

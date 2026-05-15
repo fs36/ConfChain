@@ -257,7 +257,9 @@ async function submitReview() {
 }
 
 function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("zh-CN");
+  if (!dateStr) return "-";
+  const d = new Date(dateStr);
+  return isNaN(d.getTime()) ? "-" : d.toLocaleDateString("zh-CN");
 }
 
 onMounted(fetchTasks);
@@ -266,6 +268,7 @@ onMounted(fetchTasks);
 <style scoped>
 .task-list {
   max-width: 1100px;
+  margin: 0 auto;
 }
 
 .card-header {

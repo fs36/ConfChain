@@ -46,7 +46,7 @@ export class ReviewsService {
 
     const commentCipher = createHash("sha256").update(dto.comment).digest("hex");
 
-    // 上链（失败降级）
+    // 上链（失败自动入队重试）
     const onchain = await this.blockchainService.submitReview({
       paperId: task.paperId,
       reviewerAddress: task.reviewer.walletAddr ?? "0x0",
@@ -63,31 +63,38 @@ export class ReviewsService {
         recommendation: dto.recommendation,
         comment: dto.comment,
         commentCipher,
-        txHash: onchain.txHash,
+        txHash: onchain.queued ? "" : onchain.txHash,
       },
     });
 
     await this.prisma.reviewTask.update({
       where: { id: task.id },
-      data: { status: "SUBMITTED", assignTxHash: onchain.txHash },
+      data: { status: "SUBMITTED" },
     });
 
-    await this.prisma.chainTransaction.create({
-      data: {
-        bizType: "REVIEW_SUBMIT",
-        bizId: task.paperId,
-        txHash: onchain.txHash,
-        blockHeight: onchain.blockHeight,
-        payload: {
-          taskId: task.id,
-          score: dto.score,
-          recommendation: dto.recommendation,
-          simulated: onchain.simulated,
+    if (!onchain.queued) {
+      await this.prisma.chainTransaction.create({
+        data: {
+          bizType: "REVIEW_SUBMIT",
+          bizId: task.paperId,
+          txHash: onchain.txHash,
+          blockHeight: onchain.blockHeight,
+          payload: {
+            taskId: task.id,
+            score: dto.score,
+            recommendation: dto.recommendation,
+            simulated: onchain.simulated,
+          },
         },
-      },
-    });
+      });
+    }
 
-    return { ...result, simulated: onchain.simulated };
+    return {
+      ...result,
+      simulated: onchain.simulated,
+      queued: onchain.queued,
+      pendingTxId: onchain.pendingTxId,
+    };
   }
 
   async adjudicate(paperId: string) {
@@ -113,20 +120,22 @@ export class ReviewsService {
       decision: status,
     });
 
-    await this.prisma.chainTransaction.create({
-      data: {
-        bizType: "ADJUDICATE",
-        bizId: paperId,
-        txHash: onchain.txHash,
-        blockHeight: onchain.blockHeight,
-        payload: {
-          averageScore: avg,
-          finalStatus: status,
-          threshold,
-          simulated: onchain.simulated,
+    if (!onchain.queued) {
+      await this.prisma.chainTransaction.create({
+        data: {
+          bizType: "ADJUDICATE",
+          bizId: paperId,
+          txHash: onchain.txHash,
+          blockHeight: onchain.blockHeight,
+          payload: {
+            averageScore: avg,
+            finalStatus: status,
+            threshold,
+            simulated: onchain.simulated,
+          },
         },
-      },
-    });
+      });
+    }
 
     return {
       paperId,
@@ -135,6 +144,8 @@ export class ReviewsService {
       finalStatus: status,
       txHash: onchain.txHash,
       simulated: onchain.simulated,
+      queued: onchain.queued,
+      pendingTxId: onchain.pendingTxId,
     };
   }
 

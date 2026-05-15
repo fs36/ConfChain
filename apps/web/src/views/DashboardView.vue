@@ -7,7 +7,8 @@
             <div class="welcome-left">
               <h2>欢迎回来，{{ profile?.name || profile?.email }}</h2>
               <p class="welcome-sub">
-                当前角色：
+                基于区块链的学术会议匿名审稿与版权存证系统
+                &nbsp;|&nbsp; 当前角色：
                 <el-tag :type="roleTagType" size="small">{{ roleLabel }}</el-tag>
               </p>
               <p class="welcome-addr" v-if="profile?.walletAddr">

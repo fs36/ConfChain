@@ -3,8 +3,8 @@
     <el-card class="auth-card" shadow="never">
       <div class="auth-header">
         <span class="auth-logo" aria-hidden="true">⛓</span>
-        <h2>注册 ConfChain</h2>
-        <p class="subtitle">基于区块链的学术会议平台</p>
+        <h2>注册账号</h2>
+        <p class="subtitle">区块链学术会议 · 匿名审稿与版权存证</p>
       </div>
 
       <el-form

@@ -18,6 +18,8 @@ export interface CertifyResult {
   txHash: string;
   blockHeight: number;
   simulated: boolean;
+  queued: boolean;
+  pendingTxId?: string;
 }
 
 export interface NodeStatusResult {
@@ -94,10 +96,9 @@ export class FiscoService {
   }
 
   /**
-   * 调用 WeBASE-Front /trans/handle 发送合约交易
-   * 请求体符合官方文档：contractAbi、useCns、cnsName、contractPath 等必填/选填项均带上。
+   * 调用 WeBASE-Front /trans/handle 发送合约交易（公开方法，供 ChainRetryService 重试使用）
    */
-  private async sendTransaction(params: {
+  async sendTransaction(params: {
     contractName: string;
     contractAddress: string;
     funcName: string;
@@ -202,6 +203,7 @@ export class FiscoService {
         txHash: result.transactionHash,
         blockHeight: result.blockNumber,
         simulated: false,
+        queued: false,
       };
     } catch (err: unknown) {
       const ax = err as { response?: { status: number; data?: unknown }; message?: string };
@@ -211,10 +213,8 @@ export class FiscoService {
           `WeBASE certifyCopyright 422 Unprocessable: ${JSON.stringify(ax.response?.data ?? {})}`,
         );
       }
-      this.logger.error(
-        `WeBASE certifyCopyright failed: ${msg}, fallback to simulation`,
-      );
-      return this.simulateCertify();
+      this.logger.error(`WeBASE certifyCopyright failed: ${msg}`);
+      throw err;
     }
   }
 
@@ -253,12 +253,13 @@ export class FiscoService {
         txHash: result.transactionHash,
         blockHeight: result.blockNumber,
         simulated: false,
+        queued: false,
       };
     } catch (err) {
       this.logger.error(
-        `WeBASE submitReview failed: ${(err as Error).message}, fallback to simulation`,
+        `WeBASE submitReview failed: ${(err as Error).message}`,
       );
-      return this.simulateCertify();
+      throw err;
     }
   }
 
@@ -284,12 +285,13 @@ export class FiscoService {
         txHash: result.transactionHash,
         blockHeight: result.blockNumber,
         simulated: false,
+        queued: false,
       };
     } catch (err) {
       this.logger.error(
-        `WeBASE finalizeDecision failed: ${(err as Error).message}, fallback to simulation`,
+        `WeBASE finalizeDecision failed: ${(err as Error).message}`,
       );
-      return this.simulateCertify();
+      throw err;
     }
   }
 
@@ -416,6 +418,7 @@ export class FiscoService {
       txHash: `0x${randomBytes(32).toString("hex")}`,
       blockHeight: Math.floor(Date.now() / 1000),
       simulated: true,
+      queued: false,
     };
   }
 

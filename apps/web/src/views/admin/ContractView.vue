@@ -87,14 +87,14 @@
             <el-tag :type="bizTagType(row.bizType)" size="small">{{ row.bizTypeLabel }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column label="交易哈希" min-width="200">
+        <el-table-column label="交易哈希" min-width="100">
           <template #default="{ row }">
             <el-tooltip :content="row.txHash" placement="top">
               <span class="mono small">{{ row.txHash?.slice(0, 22) }}…</span>
             </el-tooltip>
           </template>
         </el-table-column>
-        <el-table-column label="业务 ID" min-width="160">
+        <el-table-column label="业务 ID" min-width="100">
           <template #default="{ row }">
             <el-tooltip :content="row.bizId" placement="top">
               <span class="mono small">{{ row.bizId?.slice(0, 14) }}…</span>
@@ -102,7 +102,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="blockHeight" label="块高" width="90" />
-        <el-table-column label="时间" width="130">
+        <el-table-column label="时间" width="230">
           <template #default="{ row }">
             {{ new Date(row.createdAt).toLocaleString("zh-CN") }}
           </template>
@@ -210,6 +210,7 @@ onMounted(() => {
 <style scoped>
 .contract-view {
   max-width: 1100px;
+  margin: 0 auto;
 }
 
 .card-header {

@@ -135,7 +135,9 @@ function shortAddr(addr: string) {
 }
 
 function formatDate(dateStr: string) {
-  return new Date(dateStr).toLocaleDateString("zh-CN");
+  if (!dateStr) return "-";
+  const d = new Date(dateStr);
+  return isNaN(d.getTime()) ? "-" : d.toLocaleDateString("zh-CN");
 }
 
 onMounted(fetchUsers);
@@ -144,6 +146,7 @@ onMounted(fetchUsers);
 <style scoped>
 .user-manage {
   max-width: 1200px;
+  margin: 0 auto;
 }
 
 .card-header {

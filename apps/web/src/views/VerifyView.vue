@@ -3,7 +3,7 @@
     <div class="verify-header">
       <span class="verify-logo">⛓</span>
       <h1>版权存证验证</h1>
-      <p class="verify-sub">ConfChain 区块链学术论文版权查验系统</p>
+      <p class="verify-sub">区块链学术论文版权存证 · 链上查验</p>
     </div>
 
     <el-card class="verify-card">
@@ -65,7 +65,7 @@
         v-if="result.found"
         icon="success"
         title="版权存证记录存在"
-        sub-title="该文件已在 ConfChain 区块链上完成版权存证"
+        sub-title="该文件已在区块链上完成版权存证，数据不可篡改"
       >
         <template #extra>
           <el-descriptions :column="1" border style="text-align: left">
@@ -99,7 +99,7 @@
         v-else
         icon="warning"
         title="未找到版权存证记录"
-        sub-title="该文件在 ConfChain 上暂无存证记录，请确认文件是否完整或已完成存证"
+        sub-title="该文件暂无区块链存证记录，请确认文件是否已完成存证"
       />
     </el-card>
 

@@ -3,7 +3,7 @@
     <el-aside width="220px" class="sidebar">
       <div class="logo">
         <span class="logo-icon">⛓</span>
-        <span class="logo-text">ConfChain</span>
+        <span class="logo-text">区块链审稿存证</span>
       </div>
       <el-menu
         :default-active="activeRoute"
@@ -74,7 +74,7 @@
       </el-menu>
     </el-aside>
 
-    <el-container>
+    <el-container class="main-area">
       <el-header class="app-header">
         <div class="header-left">
           <span class="page-title">{{ pageTitle }}</span>
@@ -173,7 +173,7 @@ const pageTitleMap: Record<string, string> = {
   "/reviewer/tasks": "审稿任务",
 };
 
-const pageTitle = computed(() => pageTitleMap[route.path] ?? "ConfChain");
+const pageTitle = computed(() => pageTitleMap[route.path] ?? "区块链学术审稿与版权存证");
 
 async function handleCommand(cmd: string) {
   if (cmd === "logout") {
@@ -190,7 +190,13 @@ async function handleCommand(cmd: string) {
 
 <style scoped>
 .app-layout {
-  height: 100vh;
+  height: 100%;
+}
+
+/* 右侧主区域：限制在视口内，避免撑出外层滚动条 */
+.main-area {
+  overflow: hidden;
+  min-width: 0;
 }
 
 .sidebar {
@@ -199,6 +205,7 @@ async function handleCommand(cmd: string) {
   flex-direction: column;
   overflow: hidden;
   transition: width var(--transition-normal);
+  flex-shrink: 0;
 }
 
 .logo {
@@ -227,10 +234,21 @@ async function handleCommand(cmd: string) {
 .app-menu {
   border-right: none;
   flex: 1;
+  overflow-y: auto;
   --el-menu-bg-color: transparent;
   --el-menu-text-color: rgba(255, 255, 255, 0.75);
   --el-menu-hover-bg-color: var(--color-bg-sidebar-hover);
   --el-menu-active-color: var(--color-primary-light);
+}
+
+/* 侧边栏菜单滚动条美化 */
+.app-menu::-webkit-scrollbar {
+  width: 4px;
+}
+
+.app-menu::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
 }
 
 .app-menu .el-menu-item.is-active {
@@ -246,6 +264,7 @@ async function handleCommand(cmd: string) {
   align-items: center;
   justify-content: space-between;
   padding: 0 24px;
+  flex-shrink: 0;
   transition: box-shadow var(--transition-fast);
 }
 
