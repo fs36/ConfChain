@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { api } from "../services/api";
+import { sha256 } from "../services/crypto";
 
 export type UserRole = "ADMIN" | "AUTHOR" | "REVIEWER";
 
@@ -43,10 +44,12 @@ export const useAuthStore = defineStore("auth", {
     },
 
     async login(email: string, password: string) {
+      // 对密码做 SHA-256 哈希后再传输，避免明文密码在网络中暴露
+      const passwordHash = await sha256(password);
       const { data } = await api.post<{
         accessToken: string;
         user: UserProfile;
-      }>("/auth/login", { email, password });
+      }>("/auth/login", { email, password: passwordHash });
       this._persist(data.accessToken, data.user);
       return data;
     },
@@ -57,7 +60,9 @@ export const useAuthStore = defineStore("auth", {
       password: string;
       role?: UserRole;
     }) {
-      return api.post("/auth/register", payload);
+      // 对密码做 SHA-256 哈希后再传输，避免明文密码在网络中暴露
+      const passwordHash = await sha256(payload.password);
+      return api.post("/auth/register", { ...payload, password: passwordHash });
     },
 
     async fetchMe() {
