@@ -57,8 +57,7 @@
           <el-tag :type="nodeStatus?.connected ? 'success' : 'danger'" size="small">
             {{ nodeStatus?.connected ? "已连接" : "离线" }}
           </el-tag>
-          <el-tag v-if="nodeStatus?.simulated" type="warning" size="small" style="margin-left:6px">模拟</el-tag>
-        </el-descriptions-item>
+          </el-descriptions-item>
         <el-descriptions-item label="节点数量">
           {{ nodeStatus?.nodeCount ?? "-" }}
         </el-descriptions-item>

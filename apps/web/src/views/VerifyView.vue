@@ -202,7 +202,7 @@ function statusTagType(s: string) {
 <style scoped>
 .verify-page {
   min-height: 100vh;
-  background: linear-gradient(160deg, var(--color-bg-sidebar) 0%, #1a2332 50%, #0f1823 100%);
+  background: linear-gradient(160deg, #2d4463 0%, #3c5b80 50%, #4c719e 100%);
   display: flex;
   flex-direction: column;
   align-items: center;
