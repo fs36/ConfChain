@@ -22,10 +22,16 @@ api.interceptors.response.use(
       typeof window !== "undefined" && window.location.pathname === "/verify";
     const isVerifyApi =
       err.config?.url?.includes("/papers/verify") === true;
+    const isLoginApi =
+      err.config?.url?.includes("/auth/login") === true;
 
     if (status === 401) {
       if (isVerifyPage || isVerifyApi) {
         // 验证页及验证接口不要求登录，401 仅作为业务结果由页面处理，不跳转
+        return Promise.reject(err);
+      }
+      // 登录接口返回 401 说明凭证错误，由页面自行处理，不在此处拦截
+      if (isLoginApi) {
         return Promise.reject(err);
       }
       localStorage.removeItem("cc_token");

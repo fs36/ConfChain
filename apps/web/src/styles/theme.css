@@ -4,9 +4,9 @@
  * 主色：蓝色；字体：标题有辨识度、正文清晰
  */
 :root {
-  /* 字体 */
-  --font-heading: "Noto Serif SC", "Source Han Serif CN", Georgia, serif;
-  --font-body: "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif;
+  /* 字体 — 使用系统原生中文字体，避免依赖 Google Fonts */
+  --font-heading: Georgia, "Times New Roman", "Songti SC", "SimSun", serif;
+  --font-body: -apple-system, BlinkMacSystemFont, "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
   --font-mono: "JetBrains Mono", "SF Mono", Consolas, monospace;
 
   /* 主色：蓝色，可信、克制 */

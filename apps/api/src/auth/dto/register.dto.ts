@@ -1,4 +1,4 @@
-import { IsEmail, IsHexadecimal, IsString, Length } from "class-validator";
+import { IsEmail, IsHexadecimal, IsOptional, IsString, Length } from "class-validator";
 
 export class RegisterDto {
   @IsString()
@@ -16,4 +16,8 @@ export class RegisterDto {
   @IsHexadecimal()
   @Length(64, 64)
   password!: string;
+
+  @IsOptional()
+  @IsString()
+  role?: string;
 }

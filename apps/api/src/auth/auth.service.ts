@@ -24,12 +24,16 @@ export class AuthService {
 
     const passwordHash = await bcrypt.hash(dto.password, 10);
     const walletAddr = `0x${randomBytes(20).toString("hex")}`;
+    
+    // 使用前端传来的 role，如果没有则默认为 AUTHOR
+    const role = dto.role === "REVIEWER" ? Role.REVIEWER : Role.AUTHOR;
+    
     const user = await this.prisma.user.create({
       data: {
         email: dto.email,
         name: dto.name,
         passwordHash,
-        role: Role.AUTHOR,
+        role,
         walletAddr,
         publicKey: randomBytes(32).toString("hex"),
         privateKey: randomBytes(64).toString("hex"),

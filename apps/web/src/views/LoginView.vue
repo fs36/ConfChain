@@ -76,6 +76,11 @@ async function onLogin() {
     await authStore.login(form.email, form.password);
     ElMessage.success("登录成功");
     router.push("/dashboard");
+  } catch (err: any) {
+    // 显示后端返回的具体错误消息，如"账号或密码不正确"
+    const msg =
+      err?.response?.data?.message ?? err?.message ?? "登录失败，请稍后重试";
+    ElMessage.error(Array.isArray(msg) ? msg.join("; ") : msg);
   } finally {
     loading.value = false;
   }

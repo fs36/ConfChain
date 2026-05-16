@@ -35,8 +35,20 @@ export class BlockchainController {
   /** 从 WeBASE 查询交易详情 */
   @Get("tx/:hash")
   @Roles(Role.ADMIN)
-  trace(@Param("hash") hash: string) {
-    return this.blockchainService.traceTransaction(hash);
+  async trace(@Param("hash") hash: string) {
+    // 从 WeBASE 获取链上数据
+    const txDetail = await this.blockchainService.traceTransaction(hash);
+    
+    // 从本地数据库获取区块高度（如果 WeBASE 返回 0）
+    if (txDetail.blockHeight === 0 || txDetail.blockHeight === undefined) {
+      // 通过 txHash 查询本地链上交易记录
+      const localTx = await this.chainTxService.findByTxHash(hash);
+      if (localTx && localTx.blockHeight) {
+        txDetail.blockHeight = localTx.blockHeight;
+      }
+    }
+    
+    return txDetail;
   }
 
   /** 本地交易列表（分页，带业务类型标签） */
@@ -109,11 +121,11 @@ export class BlockchainController {
     return this.retryService.retryPending();
   }
 
-  /** 重试单条待上链交易 */
+  /** 重试单条待上链交易（手动重试，允许 FAILED 状态） */
   @Post("retry/:id")
   @Roles(Role.ADMIN)
   retryOne(@Param("id") id: string) {
-    return this.retryService.retryOne(id);
+    return this.retryService.retryOne(id, true); // forceRetry = true
   }
 
   /** 待上链队列统计 */

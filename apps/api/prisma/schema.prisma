@@ -7,96 +7,88 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum Role {
-  ADMIN
-  AUTHOR
-  REVIEWER
-}
-
-enum PaperStatus {
-  UPLOADED
-  CERTIFIED
-  UNDER_REVIEW
-  ACCEPTED
-  REVISION
-  REJECTED
-}
-
 model User {
-  id           String      @id @default(cuid())
-  email        String      @unique
+  id           String       @id @default(cuid())
+  email        String       @unique
   name         String
   passwordHash String
-  role         Role        @default(AUTHOR)
-  walletAddr   String?     @unique
+  role         Role         @default(AUTHOR)
+  walletAddr   String?      @unique
   publicKey    String?
   privateKey   String?
-  createdAt    DateTime    @default(now())
-  updatedAt    DateTime    @updatedAt
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
   papers       Paper[]
   reviewTasks  ReviewTask[]
 }
 
 model Paper {
-  id              String          @id @default(cuid())
-  title           String
-  abstract        String
-  keywords        String
-  filePath        String
-  fileHash        String?         @unique
-  status          PaperStatus     @default(UPLOADED)
-  txHash          String?
-  blockHeight     Int?
-  certifiedAt     DateTime?
-  /** 存证是否为模拟（未真实上链） */
-  certifySimulated Boolean?  @default(false)
-  authorId        String
-  author          User            @relation(fields: [authorId], references: [id])
-  reviewTasks     ReviewTask[]
-  reviewResults   ReviewResult[]
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  id               String         @id @default(cuid())
+  title            String
+  abstract         String
+  keywords         String
+  filePath         String
+  fileHash         String?        @unique
+  status           PaperStatus    @default(UPLOADED)
+  txHash           String?
+  blockHeight      Int?
+  certifiedAt      DateTime?
+  authorId         String
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+  /// * 存证是否为模拟（未真实上链）
+  certifySimulated Boolean?       @default(false)
+  author           User           @relation(fields: [authorId], references: [id])
+  reviewResults    ReviewResult[]
+  reviewTasks      ReviewTask[]
+
+  @@index([authorId], map: "Paper_authorId_fkey")
 }
 
 model ReviewTask {
-  id          String   @id @default(cuid())
-  paperId     String
-  reviewerId  String
-  deadlineAt  DateTime
-  status      String   @default("ASSIGNED")
+  id           String   @id @default(cuid())
+  paperId      String
+  reviewerId   String
+  deadlineAt   DateTime
+  status       String   @default("ASSIGNED")
   assignTxHash String?
-  paper       Paper    @relation(fields: [paperId], references: [id])
-  reviewer    User     @relation(fields: [reviewerId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  paper        Paper    @relation(fields: [paperId], references: [id])
+  reviewer     User     @relation(fields: [reviewerId], references: [id])
+
+  @@index([paperId], map: "ReviewTask_paperId_fkey")
+  @@index([reviewerId], map: "ReviewTask_reviewerId_fkey")
 }
 
 model ReviewResult {
-  id           String   @id @default(cuid())
-  paperId       String
-  reviewerId    String
-  score         Int
+  id             String   @id @default(cuid())
+  paperId        String
+  reviewerId     String
+  score          Int
   recommendation String
-  comment       String?
-  commentCipher String
-  txHash        String?
-  paper         Paper   @relation(fields: [paperId], references: [id])
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  commentCipher  String
+  txHash         String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  comment        String?
+  paper          Paper    @relation(fields: [paperId], references: [id])
+
+  @@index([paperId], map: "ReviewResult_paperId_fkey")
 }
 
 model ConferenceConfig {
-  id             String   @id @default(cuid())
-  conferenceName String
-  submitStartAt  DateTime
-  submitEndAt    DateTime
-  reviewDays     Int
-  acceptThreshold Int     @default(70)
-  weightInnovation Int    @default(40)
-  weightScience   Int     @default(40)
-  weightWriting   Int     @default(20)
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id               String   @id @default(cuid())
+  conferenceName   String
+  submitStartAt    DateTime
+  submitEndAt      DateTime
+  reviewDays       Int
+  acceptThreshold  Int      @default(70)
+  weightInnovation Int      @default(40)
+  weightScience    Int      @default(40)
+  weightWriting    Int      @default(20)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
 
 model ChainTransaction {
@@ -110,23 +102,38 @@ model ChainTransaction {
 }
 
 model PendingChainTx {
-  id                   String    @id @default(cuid())
+  id                   String   @id @default(cuid())
   bizType              String
   bizId                String
   contractName         String
   contractAddress      String
   funcName             String
   funcParam            Json
-  maxRetries           Int       @default(5)
-  retryCount           Int       @default(0)
-  nextRetryAt          DateTime  @default(now())
-  status               String    @default("PENDING")
+  maxRetries           Int      @default(5)
+  retryCount           Int      @default(0)
+  nextRetryAt          DateTime @default(now())
+  status               String   @default("PENDING")
   lastError            String?
   confirmedTxHash      String?
   confirmedBlockHeight Int?
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 
   @@index([status, nextRetryAt])
   @@index([bizType, bizId])
+}
+
+enum Role {
+  ADMIN
+  AUTHOR
+  REVIEWER
+}
+
+enum PaperStatus {
+  UPLOADED
+  CERTIFIED
+  UNDER_REVIEW
+  ACCEPTED
+  REVISION
+  REJECTED
 }

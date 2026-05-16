@@ -369,29 +369,34 @@ export class FiscoService {
     for (const prefix of prefixes) {
       const url = `${prefix}/transaction/${txHash}`;
       try {
-        const res = await this.http.get<{
-          blockNumber: number;
-          from: string;
-          to: string;
-          hash: string;
-        }>(url);
+        const res = await this.http.get<any>(url);
 
         const data = res.data;
+        
+        // 调试日志：打印 WeBASE 返回的完整数据结构
+        console.log('[WeBASE Debug] Transaction response:', JSON.stringify(data, null, 2));
+        this.logger.warn(`WeBASE transaction response keys: ${Object.keys(data).join(', ')}`);
+        
+        // 兼容多种字段名：blockNumber, block_height, blockNumber
         const blockHeight =
           typeof data.blockNumber === "number"
             ? data.blockNumber
+            : typeof data.block_number === "number"
+            ? data.block_number
             : typeof data.blockNumber === "string"
-              ? parseInt(String(data.blockNumber), 10)
-              : 0;
+            ? parseInt(String(data.blockNumber), 10)
+            : typeof data.block_number === "string"
+            ? parseInt(String(data.block_number), 10)
+            : 0;
 
         return {
-          txHash: data.hash ?? txHash,
-          status: "SUCCESS",
+          txHash: data.hash ?? data.txHash ?? txHash,
+          status: data.status ?? "SUCCESS",
           blockHeight: Number.isNaN(blockHeight) ? 0 : blockHeight,
-          timestamp: Date.now(),
+          timestamp: data.timestamp ?? Date.now(),
           bizType: "ON_CHAIN",
           from: data.from,
-          to: data.to,
+          to: data.to ?? data.contractAddress,
           simulated: false,
         };
       } catch (err) {

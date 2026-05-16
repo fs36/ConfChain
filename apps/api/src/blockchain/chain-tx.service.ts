@@ -59,4 +59,11 @@ export class ChainTxService {
       bizTypeLabel: BIZ_TYPE_LABEL[tx.bizType] ?? tx.bizType,
     }));
   }
+
+  /** 通过 txHash 查询单条链上交易记录 */
+  async findByTxHash(txHash: string) {
+    return this.prisma.chainTransaction.findFirst({
+      where: { txHash }
+    });
+  }
 }

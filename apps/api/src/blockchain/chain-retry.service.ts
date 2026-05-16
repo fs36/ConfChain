@@ -1,4 +1,4 @@
-import { Injectable, Logger, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
+import { BadRequestException, Injectable, Logger, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
 import { PaperStatus } from "@prisma/client";
 import { PrismaService } from "../common/prisma.service";
 import { FiscoService } from "./fisco.service";
@@ -112,15 +112,38 @@ export class ChainRetryService implements OnModuleInit, OnModuleDestroy {
     return { succeeded, failed };
   }
 
-  /** 重试单条待上链交易 */
-  async retryOne(pendingId: string) {
+  /** 重试单条待上链交易（支持手动重试 FAILED 状态） */
+  async retryOne(pendingId: string, forceRetry = false): Promise<any> {
     const pending = await this.prisma.pendingChainTx.findUnique({
       where: { id: pendingId },
     });
-    if (!pending) throw new Error(`PendingChainTx ${pendingId} 不存在`);
-    if (pending.status === "CONFIRMED") return pending;
-    if (pending.status === "FAILED") {
-      this.logger.warn(`交易 ${pendingId} 已标记 FAILED，跳过重试`);
+    if (!pending) throw new BadRequestException(`交易记录 ${pendingId} 不存在`);
+    if (pending.status === "CONFIRMED") {
+      this.logger.warn(`交易 ${pendingId} 已确认，无需重试`);
+      throw new BadRequestException("该交易已确认上链，无需重试");
+    }
+    
+    // 手动重试时（forceRetry=true），允许 FAILED 状态的交易重新尝试
+    if (pending.status === "FAILED" && forceRetry) {
+      this.logger.log(`手动重试 FAILED 交易 ${pendingId}，重置重试计数器`);
+      // 重置状态为 PENDING，重置重试次数
+      await this.prisma.pendingChainTx.update({
+        where: { id: pendingId },
+        data: {
+          status: "PENDING",
+          retryCount: 0,
+          nextRetryAt: new Date(),
+        },
+      });
+      // 重新查询更新后的记录
+      const updated = await this.prisma.pendingChainTx.findUnique({
+        where: { id: pendingId },
+      });
+      if (!updated) throw new BadRequestException(`交易记录 ${pendingId} 不存在`);
+      return this.retryOne(updated.id, false); // 递归调用，此时 status 已是 PENDING
+    } else if (pending.status === "FAILED") {
+      // 自动重试时跳过 FAILED
+      this.logger.warn(`交易 ${pendingId} 已标记 FAILED，跳过自动重试`);
       return pending;
     }
 
@@ -282,10 +305,16 @@ export class ChainRetryService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
-  /** 查询待上链队列（分页） */
+  /** 查询待上链队列（分页），默认仅显示 PENDING 和 FAILED 状态 */
   async listPending(page: number, pageSize: number, status?: string) {
-    const where: { status?: string } = {};
-    if (status) where.status = status;
+    const where: { status?: string | { in: string[] } } = {};
+    if (status) {
+      // 如果指定了状态，按状态过滤
+      where.status = status;
+    } else {
+      // 默认只显示 PENDING 和 FAILED，不显示 CONFIRMED
+      where.status = { in: ["PENDING", "FAILED"] };
+    }
     const [total, items] = await this.prisma.$transaction([
       this.prisma.pendingChainTx.count({ where }),
       this.prisma.pendingChainTx.findMany({

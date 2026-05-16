@@ -494,8 +494,9 @@ async function retryOnePending(id: string) {
     await api.post(`/blockchain/retry/${id}`);
     ElMessage.success("重试成功");
     await Promise.all([fetchPendingTxs(), fetchStats(), fetchTxList(1)]);
-  } catch {
-    ElMessage.error("重试失败");
+  } catch (error: any) {
+    const errMsg = error.response?.data?.message || "重试失败";
+    ElMessage.error(errMsg);
   } finally {
     const next = { ...retryingIds.value };
     delete next[id];
